@@ -1,11 +1,10 @@
 package com.example.ttsdemo
 
-import ai.onnxruntime.*
+import ai.onnxruntime.OnnxTensor
+import ai.onnxruntime.OrtEnvironment
+import ai.onnxruntime.OrtSession
 import android.content.Context
-import java.net.HttpURLConnection
-import java.net.URL
 import java.io.File
-import java.io.FileOutputStream
 import java.lang.Float.max
 import java.nio.FloatBuffer
 import java.nio.LongBuffer
@@ -22,10 +21,18 @@ fun speak(
     amplitude: Int,
     context: Context
 ) {
-    val modelFile = langToFile[selectedLanguage]!!.let { File(context.filesDir, it) }
+    val modelFile = File(context.filesDir, langToFile[selectedLanguage]!!)
     val session = env.createSession(modelFile.absolutePath, OrtSession.SessionOptions())
 
-    val phonemeIdsArr = longArrayOf(1, 0, 26, 0, 59, 0, 25, 0, 120, 0, 102, 0, 31, 0, 32, 0, 18, 0, 122, 0, 3, 0, 15, 0, 130, 0, 120, 0, 14, 0, 122, 0, 92, 0, 59, 0, 32, 0, 2)
+    val phonemeIdsArr = text.replace(";", ",")
+        .replace(" ", ",")
+        .replace("\t", ",")
+        .replace("\n", ",") // normalise text first into a common delimiter
+        .split(",")
+        .filter { it.isNotBlank() } // filter out empty tokens
+        .map { it.toLong() }
+        .toLongArray()
+
     val phonemeIds = LongBuffer.wrap(phonemeIdsArr)
     val phonemeIdsShape = longArrayOf(1, phonemeIdsArr.size.toLong())
 
@@ -35,7 +42,7 @@ fun speak(
 
     // TODO: even verify if it is the correct way to control speed
     // TODO: safely handle phonemeLenScale values out of bounds
-    var phonemeLenScale: Float = (1.0f / (((rate.toFloat() - 50.0f) / 25.0f) + 1.0f));
+    var phonemeLenScale: Float = (1.0f / (((rate.toFloat() - 50.0f) / 25.0f) + 1.0f))
     if (rate < 50) {
         phonemeLenScale = (1.0f / (((rate.toFloat()) / 75.0f) + (1.0f / 3.0f)))
     }
