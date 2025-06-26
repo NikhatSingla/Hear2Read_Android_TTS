@@ -138,7 +138,8 @@ fun InputScreen(context: Context) {
                 onValueChange = { text = it },
                 label = @Composable { Text("Enter text to speak") },
                 modifier = Modifier.fillMaxWidth(),
-                minLines = 3
+                minLines = 3,
+                maxLines = 5
             )
 
             LanguageDropdown(selectedLanguage) { newLanguage ->
@@ -190,8 +191,8 @@ fun InputScreen(context: Context) {
 
             Button(
                 onClick = {
-                    downloadFile(context, "https://hear2read.org/Hear2Read/voices-piper/hi-v6-tdilv2mono-1665val-med.onnx")
-                    downloadFile(context, "https://hear2read.org/Hear2Read/voices-piper/hi-v6-tdilv2mono-1665val-med.onnx.json")
+                    downloadFile(context, "https://hear2read.org/Hear2Read/voices-piper/${langToFile[selectedLanguage]}")
+                    downloadFile(context, "https://hear2read.org/Hear2Read/voices-piper/${langToFile[selectedLanguage]}.json")
                 },
                 modifier = Modifier.fillMaxWidth(),
             ) {

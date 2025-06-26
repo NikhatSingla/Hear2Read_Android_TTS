@@ -42,3 +42,26 @@ fun downloadFile(context: Context, modelUrl: String) {
         }
     }.start()
 }
+
+// Use the below implementation if model needs to be stored in external storage
+
+//fun downloadFileWithDownloadManager(
+//    context: Context,
+//    url: String
+//) {
+//    val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+//    val fileUrl = url.toUri()
+//
+//    val modelFileName = fileUrl.path!!.substringAfterLast('/') // Extract filename from URL
+//
+//    val request = DownloadManager.Request(fileUrl)
+//        .setTitle(modelFileName)
+//        .setDescription("Downloading file $modelFileName")
+//        .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+//        .setDestinationInExternalFilesDir(context, "H2R_Model_Files", modelFileName)
+//        .setAllowedOverMetered(true)
+//        .setAllowedOverRoaming(false)
+//
+//    val downloadId = downloadManager.enqueue(request)
+//    println("Download enqueued with ID: $downloadId. File: $modelFileName")
+//}
