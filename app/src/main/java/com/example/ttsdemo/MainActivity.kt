@@ -1,3 +1,10 @@
+/*
+* This file is contributed to Hear2Read's Android App Development project
+*
+* Author: Nikhat Singla
+* Date: June 2025
+*/
+
 package com.example.ttsdemo
 
 import android.content.Context
@@ -37,6 +44,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ttsdemo.ui.theme.TTSNGDemoTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 //@OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,7 +120,7 @@ fun SettingSlider(
 @Composable
 fun InputScreen(context: Context) {
     var text by remember { mutableStateOf("") }
-    var selectedLanguage by remember { mutableStateOf(Language.HINDI) }
+    var selectedLanguage by remember { mutableStateOf(Language.TEMP) }
     var selectedSpeed by remember { mutableFloatStateOf(50f) }
     var selectedVolume by remember { mutableFloatStateOf(50f) }
 
@@ -144,6 +154,9 @@ fun InputScreen(context: Context) {
 
             LanguageDropdown(selectedLanguage) { newLanguage ->
                 selectedLanguage = newLanguage
+                CoroutineScope(Dispatchers.IO).launch {
+                    Synthesizer.getOrLoadModel(context, selectedLanguage)
+                }
             }
 
             SettingSlider(
@@ -173,14 +186,17 @@ fun InputScreen(context: Context) {
             Button(
                 onClick = {
                     if (text.isNotBlank()) {
-                        speak(
-                            text,
-                            selectedLanguage,
-                            selectedSpeed.toInt(),
-                            selectedVolume.toInt(),
-//                            selectedSpeakerId
-                            context
-                        )
+                        CoroutineScope(Dispatchers.Default).launch {
+                            Synthesizer.speak(
+                                text,
+                                selectedLanguage,
+                                selectedSpeed.toInt(),
+                                selectedVolume.toInt(),
+                                //                            selectedSpeakerId
+                                context,
+                                null
+                            )
+                        }
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -196,8 +212,29 @@ fun InputScreen(context: Context) {
                 },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Download Model (Temporary)")
+                Text("Download ${selectedLanguage.displayName} Model (Temporary)")
             }
+
+//            Button(
+//                onClick = {
+//                    val zipUrl = "https://nvda-addons.org/files/get.php?file=hear2read-beta"
+//                    ZipDownloader.downloadAndUnzip(context, zipUrl, "hear2read_extracted")
+//                },
+//                modifier = Modifier.fillMaxWidth(),
+//            ) {
+//                Text("Download and unzip eSpeak files (Temporary)")
+//            }
+//
+//            Button(
+//                onClick = {
+//                    val espeakDataPath = context.filesDir.absolutePath + "/hear2read_extracted/res/espeak-ng-data"
+//                    println("espeakDataPath: $espeakDataPath")
+//                    Synthesizer.initeSpeak(espeakDataPath)
+//                },
+//                modifier = Modifier.fillMaxWidth()
+//            ) {
+//                Text("Initialize eSpeak")
+//            }
         }
     }
 }
@@ -205,6 +242,10 @@ fun InputScreen(context: Context) {
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+//        copyDataDir(this, "espeak-ng-data")
+        Synthesizer.initeSpeak(copyDataDir(this, "espeak-ng-data"))
+
         enableEdgeToEdge()
         setContent {
             InputScreen(this)

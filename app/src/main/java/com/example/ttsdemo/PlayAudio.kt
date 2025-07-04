@@ -1,3 +1,10 @@
+/*
+* This file is contributed to Hear2Read's Android App Development project
+*
+* Author: Nikhat Singla
+* Date: June 2025
+*/
+
 package com.example.ttsdemo
 
 import android.media.AudioFormat

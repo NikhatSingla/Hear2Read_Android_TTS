@@ -1,8 +1,17 @@
+/*
+* This file is contributed to Hear2Read's Android App Development project
+*
+* Author: Nikhat Singla
+* Date: June 2025
+*/
+
 package com.example.ttsdemo
 
 import android.content.Context
+import android.util.Log
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -38,9 +47,62 @@ fun downloadFile(context: Context, modelUrl: String) {
 
             println("Downloaded file: $fileName")
         } catch (e: Exception) {
+            println("Download has failed")
             e.printStackTrace()
         }
     }.start()
+}
+
+fun copyFile(context: Context, filename: String) {
+    try {
+        val istream = context.assets.open(filename)
+        val newFilename = context.filesDir.absolutePath + "/" + filename
+
+//        println("newFilename: $newFilename")
+
+        val ostream = FileOutputStream(newFilename)
+        // Log.i(TAG, "Copying $filename to $newFilename")
+        val buffer = ByteArray(1024)
+        var read = 0
+        while (read != -1) {
+            ostream.write(buffer, 0, read)
+            read = istream.read(buffer)
+        }
+        istream.close()
+        ostream.flush()
+        ostream.close()
+    } catch (ex: Exception) {
+        println("Failed to copy $filename, $ex")
+    }
+}
+
+fun copyAssets(context: Context, path: String) {
+    val assets: Array<String>?
+    try {
+        assets = context.assets.list(path)
+        if (assets!!.isEmpty()) {
+            copyFile(context, path)
+        } else {
+            val fullPath = "${context.filesDir.absolutePath}/$path"
+            val dir = File(fullPath)
+            dir.mkdirs()
+            for (asset in assets.iterator()) {
+                val p: String = if (path == "") "" else "$path/"
+                copyAssets(context, p + asset)
+            }
+        }
+    } catch (ex: IOException) {
+        println("Failed to copy $path. $ex")
+    }
+}
+
+fun copyDataDir(context: Context, dataDir: String): String {
+    println("data dir is $dataDir")
+    copyAssets(context, dataDir)
+
+    val newDataDir = File(context.filesDir!!.absolutePath, dataDir)
+    println("newDataDir: ${newDataDir.absolutePath}")
+    return newDataDir.absolutePath
 }
 
 // Use the below implementation if model needs to be stored in external storage
