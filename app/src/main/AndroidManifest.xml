@@ -3,6 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <queries>
+        <!-- For apps that can send an email -->
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="mailto" />
+        </intent>
+    </queries>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -26,7 +34,7 @@
         </activity>
 
         <service
-            android:name=".`TtsService.kt`"
+            android:name="com.example.ttsdemo.TtsService"
             android:enabled="true"
             android:exported="true"
             android:label="@string/app_name">
