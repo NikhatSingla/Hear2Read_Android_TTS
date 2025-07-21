@@ -105,6 +105,18 @@ fun copyDataDir(context: Context, dataDir: String): String {
     return newDataDir.absolutePath
 }
 
+fun getFileWithExtension(directory: String, extension: String) : File? {
+    val files = File(directory).listFiles()
+    if (files != null) {
+        for (file in files) {
+            if (file.isFile && file.name.endsWith(extension)) {
+                return file
+            }
+        }
+    }
+
+    return null
+}
 // Use the below implementation if model needs to be stored in external storage
 
 //fun downloadFileWithDownloadManager(

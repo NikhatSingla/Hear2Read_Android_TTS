@@ -37,6 +37,8 @@ android {
     buildFeatures {
         compose = true
     }
+
+    assetPacks += listOf(":hin", ":pan")
 }
 
 dependencies {
@@ -57,8 +59,12 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    implementation("androidx.compose.material:material-icons-extended:<version>")
+    implementation("androidx.compose.material:material-icons-extended:latest.release")
     implementation("com.microsoft.onnxruntime:onnxruntime-android:latest.release")
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation("com.google.android.play:asset-delivery:2.3.0")
+    // For Kotlin use core-ktx
+    implementation("com.google.android.play:asset-delivery-ktx:2.3.0")
+    implementation("androidx.navigation:navigation-compose:2.9.2")
 }

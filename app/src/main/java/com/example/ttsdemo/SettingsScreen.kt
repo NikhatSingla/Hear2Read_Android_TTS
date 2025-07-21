@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.navigation.NavController
 
 @Composable
 fun OptionsText(text: String, onOptionClick: () -> Unit) {
@@ -41,7 +42,7 @@ fun OptionsText(text: String, onOptionClick: () -> Unit) {
 }
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(navController: NavController) {
     val context = LocalContext.current
 
     Scaffold (
@@ -58,7 +59,7 @@ fun SettingsScreen() {
 //                Spacer(modifier = Modifier.height(16.dp))
 //                HorizontalDivider()
                 OptionsText("Install voices") {
-
+                    navController.navigate(Screen.VoiceManager.route)
                 }
 
                 OptionsText("Open Source Licenses") {
@@ -83,8 +84,8 @@ fun SettingsScreen() {
     }
 }
 
-@Preview
-@Composable
-fun SettingsPreview() {
-    SettingsScreen()
-}
+//@Preview
+//@Composable
+//fun SettingsPreview() {
+//    SettingsScreen()
+//}

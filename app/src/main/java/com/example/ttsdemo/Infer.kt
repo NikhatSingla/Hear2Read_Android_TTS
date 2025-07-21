@@ -50,12 +50,11 @@ object Synthesizer {
     @JvmStatic
     fun getOrLoadModel(
         context: Context,
-        selectedLanguage: Language
+        selectedVoice: Voice
     ) {
-        val modelFile = File(context.filesDir, langToFile[selectedLanguage]!!)
-
-        if (!modelFile.exists())
-            return
+        val assetPackLocation = manager!!.getPackLocation(selectedVoice.iso3) ?: return
+        val assetPackPath = assetPackLocation.assetsPath() ?: return
+        val modelFile = getFileWithExtension(assetPackPath, "onnx") ?: return
 
         try {
             _loadJob?.cancel()
@@ -97,7 +96,7 @@ object Synthesizer {
     @JvmStatic
     fun speak(
         text: String,
-        selectedLanguage: Language,
+        selectedVoice: Voice,
         rate: Int,
         amplitude: Int,
         context: Context,
@@ -126,7 +125,10 @@ object Synthesizer {
             }
 
             // TODO: check if modelFile exists, else prompt for download
-            val jsonConfigFile = File(context.filesDir, langToFile[selectedLanguage]!! + ".json")
+            val assetPackLocation = manager!!.getPackLocation(selectedVoice.iso3) ?: return@launch
+            val assetPackPath = assetPackLocation.assetsPath() ?: return@launch
+            val jsonConfigFile = getFileWithExtension(assetPackPath, "json") ?: return@launch
+//            val jsonConfigFile = File(context.filesDir, langToFile[selectedLanguage]!! + ".json")
 
             //            println("Model file is ${modelFile.isFile()}")
             println("Config file is ${jsonConfigFile.isFile()}")

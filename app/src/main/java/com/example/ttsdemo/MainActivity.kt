@@ -37,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -46,22 +47,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.google.android.play.core.assetpacks.AssetPackManagerFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-//@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LanguageDropdown(
-    selectedLanguage: Language,
-    onLanguageSelected: (Language) -> Unit
+    selectedVoice: Voice?,
+    onVoiceSelected: (Voice) -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
-    val languages = Language.entries
 
     Box(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
-            value = selectedLanguage.displayName,
+            value = selectedVoice?.name ?: "Select Language",
             onValueChange = { /* Read Only */ },
             label = { Text("Language") },
             modifier = Modifier
@@ -82,14 +86,18 @@ fun LanguageDropdown(
             onDismissRequest = { isExpanded = false },
             modifier = Modifier.fillMaxWidth(0.9f)
         ) {
-            languages.forEach { language ->
-                DropdownMenuItem(
-                    text = { Text(language.displayName) },
-                    onClick = {
-                        onLanguageSelected(language)
-                        isExpanded = false
-                    }
-                )
+            voices.forEach { voice ->
+                val status by voice.status
+
+                if (status == DownloadStatus.DOWNLOADED) {
+                    DropdownMenuItem(
+                        text = { Text(voice.name) },
+                        onClick = {
+                            onVoiceSelected(voice)
+                            isExpanded = false
+                        }
+                    )
+                }
             }
         }
     }
@@ -117,14 +125,17 @@ fun SettingSlider(
     }
 }
 
-
-//@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InputScreen(context: Context) {
+fun InputScreen(context: Context, navController: NavController) {
     var text by remember { mutableStateOf("") }
-    var selectedLanguage by remember { mutableStateOf(Language.TEMP) }
+    var selectedVoice: Voice? by remember { mutableStateOf(null) }
     var selectedSpeed by remember { mutableFloatStateOf(50f) }
     var selectedVolume by remember { mutableFloatStateOf(50f) }
+
+    if (selectedVoice?.status?.value == DownloadStatus.NOT_DOWNLOADED
+        || selectedVoice?.status?.value == DownloadStatus.CORRUPTED) {
+        selectedVoice = null
+    }
 
     Scaffold(
         topBar = {
@@ -148,10 +159,13 @@ fun InputScreen(context: Context) {
                 maxLines = 5
             )
 
-            LanguageDropdown(selectedLanguage) { newLanguage ->
-                selectedLanguage = newLanguage
-                CoroutineScope(Dispatchers.IO).launch {
-                    Synthesizer.getOrLoadModel(context, selectedLanguage)
+            LanguageDropdown(selectedVoice) { newVoice ->
+                selectedVoice = newVoice
+
+                if (selectedVoice != null) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        Synthesizer.getOrLoadModel(context, selectedVoice!!)
+                    }
                 }
             }
 
@@ -181,11 +195,11 @@ fun InputScreen(context: Context) {
 
             Button(
                 onClick = {
-                    if (text.isNotBlank()) {
+                    if (text.isNotBlank() && selectedVoice != null) {
                         CoroutineScope(Dispatchers.Default).launch {
                             Synthesizer.speak(
                                 text,
-                                selectedLanguage,
+                                selectedVoice!!,
                                 selectedSpeed.toInt(),
                                 selectedVolume.toInt(),
                                 //                            selectedSpeakerId
@@ -196,20 +210,29 @@ fun InputScreen(context: Context) {
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = text.isNotBlank() // Enable button only if text is entered
+                enabled = text.isNotBlank() && selectedVoice != null
             ) {
                 Text("Speak")
             }
 
             Button(
                 onClick = {
-                    downloadFile(context, "https://hear2read.org/Hear2Read/voices-piper/${langToFile[selectedLanguage]}")
-                    downloadFile(context, "https://hear2read.org/Hear2Read/voices-piper/${langToFile[selectedLanguage]}.json")
+                    navController.navigate(Screen.Settings.route)
                 },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Download ${selectedLanguage.displayName} Model (Temporary)")
+                Text("Settings")
             }
+
+//            Button(
+//                onClick = {
+//                    downloadFile(context, "https://hear2read.org/Hear2Read/voices-piper/${langToFile[selectedLanguage]}")
+//                    downloadFile(context, "https://hear2read.org/Hear2Read/voices-piper/${langToFile[selectedLanguage]}.json")
+//                },
+//                modifier = Modifier.fillMaxWidth(),
+//            ) {
+//                Text("Download ${selectedLanguage.displayName} Model (Temporary)")
+//            }
 
 //            Button(
 //                onClick = {
@@ -235,17 +258,39 @@ fun InputScreen(context: Context) {
     }
 }
 
+sealed class Screen(val route: String) {
+    data object Home : Screen("input")
+    data object Settings : Screen("settings")
+    data object VoiceManager : Screen("voiceManager")
+}
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        manager = AssetPackManagerFactory.getInstance(this)
+        populateSizes()
 
-//        copyDataDir(this, "espeak-ng-data")
+        copyDataDir(this, "espeak-ng-data")
         Synthesizer.initeSpeak(copyDataDir(this, "espeak-ng-data"))
 
         enableEdgeToEdge()
         setContent {
-//            InstallVoicesPreview()
-            SettingsPreview()
+            val navController = rememberNavController()
+
+            NavHost(navController = navController, startDestination = Screen.Home.route) {
+                composable(Screen.Home.route) {
+                    InputScreen(this@MainActivity, navController)
+                }
+                composable(Screen.Settings.route) {
+                    SettingsScreen(navController)
+                }
+                composable(Screen.VoiceManager.route) {
+                    InstallVoicesScreen()
+                }
+            }
+
+//            InstallVoicesScreen()
+//            SettingsPreview()
 //            VoiceManagerScreen()
 //            InputScreen(this)
 //            TTSNGDemoTheme {

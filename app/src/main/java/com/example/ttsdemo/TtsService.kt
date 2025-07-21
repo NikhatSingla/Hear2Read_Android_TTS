@@ -38,11 +38,15 @@ class TtsService : TextToSpeechService() {
         // TODO: check properly what documentation meant by onLoadLanguage not ALWAYS called
         Log.i(TAG, "onLoadCalled: $lang, $country, $variant")
 
-        if (iso3ToLang.containsKey(lang)) {
+        for (voice in voices) {
+            if (voice.iso3 != lang) {
+                continue
+            }
+
             Log.i(TAG, "Known lang $lang called inside onLoadLanguage")
 
             // TODO: remove hardcoded hi
-            Synthesizer.getOrLoadModel(application, iso3ToLang[lang]!!)
+            Synthesizer.getOrLoadModel(application, voice)
             return LANG_AVAILABLE
         }
 
@@ -89,7 +93,7 @@ class TtsService : TextToSpeechService() {
         }
 
         runBlocking {
-            Synthesizer.speak(text, Language.HI, 50, 100, application, ttsCallback)?.join()
+            Synthesizer.speak(text, voices[0], 50, 100, application, ttsCallback)?.join()
         }
 
         callback.done()
@@ -105,9 +109,11 @@ class TtsService : TextToSpeechService() {
         Log.i(TAG, "onIsLangAvailable: Hear2Read TTS Service: $lang, $country, $variant")
 
         // TODO: provide a mapping and check from it
-        if (iso3ToLang.containsKey(lang)) {
-            Log.i(TAG, "Known language $lang returned.")
-            return LANG_AVAILABLE
+        for (voice in voices) {
+            if (voice.iso3 == lang) {
+                Log.i(TAG, "Known language $lang returned.")
+                return LANG_AVAILABLE
+            }
         }
 
         return LANG_NOT_SUPPORTED
