@@ -8,8 +8,17 @@ import android.speech.tts.TextToSpeech
 class CheckVoiceData : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val availableVoices: ArrayList<String> = ArrayList()
+
+        for (voice in voices) {
+            if (voice.status.value == DownloadStatus.DOWNLOADED) {
+                availableVoices.add(voice.iso3)
+            }
+        }
+
         val intent = Intent().apply {
-            putStringArrayListExtra(TextToSpeech.Engine.EXTRA_AVAILABLE_VOICES, arrayListOf("hin", "pan"))
+            putStringArrayListExtra(TextToSpeech.Engine.EXTRA_AVAILABLE_VOICES, availableVoices)
             putStringArrayListExtra(TextToSpeech.Engine.EXTRA_UNAVAILABLE_VOICES, arrayListOf())
         }
         setResult(TextToSpeech.Engine.CHECK_VOICE_DATA_PASS, intent)
