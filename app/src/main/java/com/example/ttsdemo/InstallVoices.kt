@@ -62,16 +62,16 @@ data class Voice (
     val status: MutableState<DownloadStatus>,
     val iso3: String,
     var size: Long = 0,
-    var assetPackState: AssetPackState? = null,
+    val downloadProgress: MutableState<Float> = mutableStateOf(0.0f),
 )
 
 val voices = listOf(
     Voice("Hindi", "hi-tdilv2mono-1", mutableStateOf(DownloadStatus.NOT_DOWNLOADED), "hin"),
     Voice("Punjabi", "pa-tdif-1", mutableStateOf(DownloadStatus.NOT_DOWNLOADED), "pan"),
     Voice("English", "en-mono-us", mutableStateOf(DownloadStatus.DOWNLOADED), "eng"),
-    Voice("Tamil", "ta-tdif-1", mutableStateOf(DownloadStatus.CORRUPTED), "tam"),
-    Voice("Marathi", "ma-tdif-1", mutableStateOf(DownloadStatus.DOWNLOADING), "mar"),
-    Voice("Assamese", "as-tdif-1", mutableStateOf(DownloadStatus.CORRUPTED), "asa"),
+//    Voice("Tamil", "ta-tdif-1", mutableStateOf(DownloadStatus.CORRUPTED), "tam"),
+//    Voice("Marathi", "ma-tdif-1", mutableStateOf(DownloadStatus.DOWNLOADING), "mar"),
+    Voice("Assamese", "as-tdif-1", mutableStateOf(DownloadStatus.CORRUPTED), "asm"),
 )
 
 @Composable
@@ -157,7 +157,7 @@ fun VoiceItem(voice: Voice) {
                 Spacer(modifier = Modifier.height(8.dp)) // Add vertical space
 
                 LinearProgressIndicator(
-                    // progress = { currentProgress }, // Uncomment when you have determinate progress
+                     progress = { voice.downloadProgress.value },
                     modifier = Modifier
                         .fillMaxWidth(0.6f) // Make it take 80% of the column's width
                         // OR

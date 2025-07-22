@@ -15,5 +15,13 @@
 local.properties
 pan/src/main/assets/pa-v4-tdil-1419-low.onnx
 pan/src/main/assets/pa-v4-tdil-1419-low.onnx.json
+pan/build
 hin/src/main/assets/hi-v6-tdilv2mono-1665val-med.onnx
 hin/src/main/assets/hi-v6-tdilv2mono-1665val-med.onnx.json
+hin/build
+asm/src/main/assets/as-v2-tdil-1169-med.onnx
+asm/src/main/assets/as-v2-tdil-1169-med.onnx.json
+asm/build
+eng/src/main/assets/en_US-amy-low.onnx
+eng/src/main/assets/en_US-amy-low.onnx.json
+eng/build

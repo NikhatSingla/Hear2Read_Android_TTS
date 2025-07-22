@@ -11,6 +11,8 @@ import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession
 import android.content.Context
+import android.util.Log
+import com.google.android.play.core.assetpacks.AssetPackManagerFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -52,9 +54,15 @@ object Synthesizer {
         context: Context,
         selectedVoice: Voice
     ) {
+        if (manager == null) {
+            manager = AssetPackManagerFactory.getInstance(context)
+        }
+
         val assetPackLocation = manager!!.getPackLocation(selectedVoice.iso3) ?: return
+        Log.d("AssetPack", assetPackLocation.assetsPath().toString())
         val assetPackPath = assetPackLocation.assetsPath() ?: return
         val modelFile = getFileWithExtension(assetPackPath, "onnx") ?: return
+        Log.d("AssetPack", modelFile.absolutePath)
 
         try {
             _loadJob?.cancel()

@@ -38,7 +38,7 @@ android {
         compose = true
     }
 
-    assetPacks += listOf(":hin", ":pan")
+    assetPacks += listOf(":hin", ":pan", ":eng", ":asm")
 }
 
 dependencies {

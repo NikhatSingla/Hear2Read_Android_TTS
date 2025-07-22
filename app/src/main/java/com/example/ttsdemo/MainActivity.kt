@@ -270,7 +270,7 @@ class MainActivity : ComponentActivity() {
         manager = AssetPackManagerFactory.getInstance(this)
         populateSizes()
 
-        copyDataDir(this, "espeak-ng-data")
+//        copyDataDir(this, "espeak-ng-data")
         Synthesizer.initeSpeak(copyDataDir(this, "espeak-ng-data"))
 
         enableEdgeToEdge()

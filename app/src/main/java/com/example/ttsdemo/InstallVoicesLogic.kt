@@ -18,7 +18,9 @@ import kotlinx.coroutines.launch
 
 val voicePackList = listOf(
     "hin",
-    "pan"
+    "pan",
+    "eng",
+    "asm"
 )
 
 fun populateSizes() {
@@ -37,7 +39,7 @@ fun populateSizes() {
 
                 val assetPackState = assetPackStates.packStates()[voice.iso3]
                 voice.size = assetPackState!!.totalBytesToDownload()
-                voice.assetPackState = assetPackState
+//                voice.assetPackState = assetPackState
                 Log.i("PAD_Test", "${voice.iso3}: ${assetPackState.totalBytesToDownload()}")
             }
         }

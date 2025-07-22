@@ -14,6 +14,8 @@ import android.speech.tts.TextToSpeech.LANG_AVAILABLE
 import android.speech.tts.TextToSpeech.LANG_NOT_SUPPORTED
 import android.speech.tts.TextToSpeechService
 import android.util.Log
+import androidx.compose.runtime.getValue
+import com.google.android.play.core.assetpacks.AssetPackManagerFactory
 import kotlinx.coroutines.runBlocking
 
 class TtsService : TextToSpeechService() {
@@ -23,6 +25,9 @@ class TtsService : TextToSpeechService() {
     override fun onCreate() {
         Log.i(TAG, "onCreate: Hear2Read TTS Service")
         super.onCreate()
+
+        manager = AssetPackManagerFactory.getInstance(application)
+        populateSizes()
 
         Synthesizer.initeSpeak(copyDataDir(this, "espeak-ng-data"))
     }
@@ -39,15 +44,16 @@ class TtsService : TextToSpeechService() {
         Log.i(TAG, "onLoadCalled: $lang, $country, $variant")
 
         for (voice in voices) {
-            if (voice.iso3 != lang) {
-                continue
+            val status by voice.status
+
+            if (voice.iso3 == lang && status == DownloadStatus.DOWNLOADED) {
+                Log.i(TAG, "Known lang $lang called inside onLoadLanguage")
+
+                // TODO: remove hardcoded hi
+                Synthesizer.getOrLoadModel(application, voice)
+
+                return LANG_AVAILABLE
             }
-
-            Log.i(TAG, "Known lang $lang called inside onLoadLanguage")
-
-            // TODO: remove hardcoded hi
-            Synthesizer.getOrLoadModel(application, voice)
-            return LANG_AVAILABLE
         }
 
         return LANG_NOT_SUPPORTED
@@ -58,11 +64,13 @@ class TtsService : TextToSpeechService() {
 
         // TODO: implement parameters such as rate, amplitude from SyntesisRequest
         val text = request.charSequenceText.toString()
+        val rate = request.speechRate
         val language = request.language
         val country = request.country
         val variant = request.variant
 
         val ret = onIsLanguageAvailable(language, country, variant)
+
         if (ret == LANG_NOT_SUPPORTED) {
             callback.error()
             return

@@ -18,19 +18,24 @@ object StatePackUpdateListener : AssetPackStateUpdateListener {
                     || status == AssetPackStatus.PENDING
                     || status == AssetPackStatus.TRANSFERRING
                 ) {
+                    voice.downloadProgress.value = (state.transferProgressPercentage() * 1.0f) / 100.0f
+                    Log.d("PAD_Test", "Voice: ${state.name()}, Percentage: ${state.transferProgressPercentage()}")
                     voice.status.value = DownloadStatus.DOWNLOADING
                 } else if (status == AssetPackStatus.COMPLETED) {
+                    voice.downloadProgress.value = 1.0f
                     voice.status.value = DownloadStatus.DOWNLOADED
                 } else if (status == AssetPackStatus.NOT_INSTALLED) {
+                    voice.downloadProgress.value = 0.0f
                     voice.status.value = DownloadStatus.NOT_DOWNLOADED
                 } else if (status == AssetPackStatus.CANCELED
                     || status == AssetPackStatus.FAILED
                     || status == AssetPackStatus.UNKNOWN
                 ) {
+                    voice.downloadProgress.value = 0.0f
                     voice.status.value = DownloadStatus.CORRUPTED
                 }
 
-                break;
+                break
             }
         }
     }
