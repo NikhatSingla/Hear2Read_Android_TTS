@@ -144,6 +144,7 @@ class TtsService : TextToSpeechService() {
 
     override fun onGetLanguage(): Array<String> {
         // TODO: remove hardcoded hi
+        Log.i(TAG, "onGetLanguage")
         return arrayOf("hin", "", "")
     }
 

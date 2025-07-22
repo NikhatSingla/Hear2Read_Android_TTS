@@ -44,6 +44,15 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".CheckVoiceData"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.speech.tts.engine.CHECK_TTS_DATA" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <service
             android:name="com.example.ttsdemo.TtsService"
             android:enabled="true"
