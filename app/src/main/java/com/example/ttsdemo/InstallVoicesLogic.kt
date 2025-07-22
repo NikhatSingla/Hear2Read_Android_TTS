@@ -1,7 +1,6 @@
 package com.example.ttsdemo
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
 import com.google.android.play.core.ktx.requestFetch
 import com.google.android.play.core.ktx.requestPackStates
 import com.google.android.play.core.ktx.requestRemovePack
@@ -33,6 +32,20 @@ fun populateSizes() {
             if (voice.iso3 in voicePackList) {
                 if (manager!!.getPackLocation(voice.iso3) != null) {
                     voice.status.value = DownloadStatus.DOWNLOADED
+
+                    val assetPackLocation = manager!!.getPackLocation(voice.iso3)
+                    val assetPackPath = assetPackLocation?.assetsPath()!!
+                    val fileName = getFileWithExtension(assetPackPath, "onnx") ?: return@launch
+
+                    val tempParsed = fileName.name.replace("-", ".").split(".")
+                    var synthFreq = 16000
+
+                    if (tempParsed.contains("med")) {
+                        Log.d("PAD_Test", "This is a medium voice ${voice.iso3}")
+                        synthFreq = 22050
+                    }
+
+                    voice.sampleRate = synthFreq
                 } else {
                     voice.status.value = DownloadStatus.NOT_DOWNLOADED
                 }

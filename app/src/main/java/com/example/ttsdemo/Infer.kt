@@ -16,9 +16,7 @@ import com.google.android.play.core.assetpacks.AssetPackManagerFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import java.io.File
 import java.lang.Float.max
 import java.nio.FloatBuffer
 import java.nio.LongBuffer
@@ -250,7 +248,7 @@ object Synthesizer {
 
                     // TODO: provide playAudio as callback too!
                     if (callback == null) {
-                        playAudio(shortArray, 22050)
+                        playAudio(shortArray, selectedVoice.sampleRate)
                     } else {
                         callback(shortArray)
                     }

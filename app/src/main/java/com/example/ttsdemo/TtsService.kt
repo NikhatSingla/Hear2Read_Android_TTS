@@ -76,8 +76,23 @@ class TtsService : TextToSpeechService() {
             return
         }
 
+        var foundVoice: Voice? = null
+
+        for (voice in voices) {
+            if (voice.iso3 == language) {
+                foundVoice = voice
+                break
+            }
+        }
+
+        if (foundVoice == null) {
+            return
+        }
+
+        Log.d(TAG, "Synthesis Voice found ${foundVoice.iso3}")
+
         // TODO: fix sample rate
-        callback.start(22050, AudioFormat.ENCODING_PCM_16BIT, 1)
+        callback.start(foundVoice.sampleRate, AudioFormat.ENCODING_PCM_16BIT, 1)
 
         if (text.isBlank() || text.isEmpty()) {
             callback.done()
@@ -101,7 +116,7 @@ class TtsService : TextToSpeechService() {
         }
 
         runBlocking {
-            Synthesizer.speak(text, voices[0], 50, 100, application, ttsCallback)?.join()
+            Synthesizer.speak(text, foundVoice, 50, 100, application, ttsCallback)?.join()
         }
 
         callback.done()
