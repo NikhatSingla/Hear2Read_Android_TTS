@@ -5,12 +5,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.util.Log
+import java.util.Locale
 
 class GetSampleText : Activity() {
     private val TAG = "FetchSampleText"
 
     private fun getSampleTextData(lang: String) : String {
-        val resourceName = "${lang}_sample"
+        val iso3lang = Locale(lang).isO3Language
+        val resourceName = "${iso3lang}_sample"
         Log.d(TAG, "Resource name: $resourceName")
         val resId = this.resources.getIdentifier(resourceName, "string", this.packageName)
 
