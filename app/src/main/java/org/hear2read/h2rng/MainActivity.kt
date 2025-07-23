@@ -5,7 +5,7 @@
 * Date: June 2025
 */
 
-package com.example.ttsdemo
+package org.hear2read.h2rng
 
 import android.content.Context
 import android.os.Bundle
@@ -50,6 +50,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.android.play.core.assetpacks.AssetPackManagerFactory
+import com.hear2read.h2rng.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -131,7 +132,8 @@ fun InputScreen(context: Context, navController: NavController) {
     var selectedVolume by remember { mutableFloatStateOf(50f) }
 
     if (selectedVoice?.status?.value == DownloadStatus.NOT_DOWNLOADED
-        || selectedVoice?.status?.value == DownloadStatus.CORRUPTED) {
+        || selectedVoice?.status?.value == DownloadStatus.CORRUPTED
+    ) {
         selectedVoice = null
     }
 

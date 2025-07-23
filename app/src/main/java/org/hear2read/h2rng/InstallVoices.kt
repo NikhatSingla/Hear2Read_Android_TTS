@@ -1,4 +1,4 @@
-package com.example.ttsdemo
+package org.hear2read.h2rng
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource

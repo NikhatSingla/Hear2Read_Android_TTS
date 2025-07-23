@@ -5,7 +5,7 @@
 * Date: June 2025
 */
 
-package com.example.ttsdemo
+package org.hear2read.h2rng
 
 import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment

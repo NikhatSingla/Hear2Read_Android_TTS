@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">TTS NG Demo</string>
+    <string name="app_name">Hear2Read NG</string>
     <string name="tts_label">Hear2Read</string>
     <string name="eng_sample">This is a sample English sentence for the Hear2Read synthesizer.</string>
 

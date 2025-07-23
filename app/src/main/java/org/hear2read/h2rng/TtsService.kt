@@ -5,7 +5,7 @@
 * Date: June 2025
 */
 
-package com.example.ttsdemo
+package org.hear2read.h2rng
 
 import android.media.AudioFormat
 import android.speech.tts.SynthesisCallback

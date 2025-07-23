@@ -5,7 +5,7 @@
 * Date: June 2025
 */
 
-package com.example.ttsdemo
+package org.hear2read.h2rng
 
 import android.content.Context
 import java.io.File

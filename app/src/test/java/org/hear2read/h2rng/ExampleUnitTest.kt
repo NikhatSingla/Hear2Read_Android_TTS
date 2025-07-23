@@ -1,4 +1,4 @@
-package com.example.ttsdemo
+package org.hear2read.h2rng
 
 import org.junit.Test
 

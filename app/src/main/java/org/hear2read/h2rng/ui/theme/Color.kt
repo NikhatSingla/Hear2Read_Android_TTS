@@ -1,4 +1,4 @@
-package com.example.ttsdemo.ui.theme
+package org.hear2read.h2rng.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

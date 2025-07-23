@@ -1,4 +1,4 @@
-package com.example.ttsdemo
+package org.hear2read.h2rng
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

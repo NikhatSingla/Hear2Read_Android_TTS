@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.ttsdemo"
+    namespace = "com.hear2read.h2rng"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.ttsdemo"
+        applicationId = "org.hear2read.h2rng"
         minSdk = 24
         targetSdk = 35
         versionCode = 1

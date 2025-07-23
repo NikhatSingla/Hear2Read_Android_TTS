@@ -5,7 +5,7 @@
 * Date: June 2025
 */
 
-package com.example.ttsdemo
+package org.hear2read.h2rng
 
 //val langToFile = mapOf(
 //    Language.HI to "hi-v6-tdilv2mono-1665val-med.onnx",
