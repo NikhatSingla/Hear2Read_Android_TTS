@@ -54,7 +54,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name="org.hear2read.h2rng.TtsService"
+            android:name="h2rng.TtsService"
             android:enabled="true"
             android:exported="true"
             android:label="@string/app_name">

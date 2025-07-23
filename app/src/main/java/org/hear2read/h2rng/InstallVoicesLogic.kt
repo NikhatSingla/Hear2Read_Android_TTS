@@ -19,7 +19,6 @@ val voicePackList = listOf(
     "hin",
     "pan",
     "eng",
-    "asm"
 )
 
 fun populateSizes() {

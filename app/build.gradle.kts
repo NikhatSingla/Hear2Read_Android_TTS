@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.hear2read.h2rng"
+    namespace = "org.hear2read.h2rng"
     compileSdk = 35
 
     defaultConfig {
@@ -38,7 +38,7 @@ android {
         compose = true
     }
 
-    assetPacks += listOf(":hin", ":pan", ":eng", ":asm")
+    assetPacks += listOf(":hin", ":pan", ":eng")
 }
 
 dependencies {

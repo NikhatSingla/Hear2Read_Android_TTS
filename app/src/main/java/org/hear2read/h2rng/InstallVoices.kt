@@ -60,7 +60,7 @@ val voices = listOf(
     Voice("English", "en-mono-us", mutableStateOf(DownloadStatus.DOWNLOADED), "eng"),
 //    Voice("Tamil", "ta-tdif-1", mutableStateOf(DownloadStatus.CORRUPTED), "tam"),
 //    Voice("Marathi", "ma-tdif-1", mutableStateOf(DownloadStatus.DOWNLOADING), "mar"),
-    Voice("Assamese", "as-tdif-1", mutableStateOf(DownloadStatus.CORRUPTED), "asm"),
+//    Voice("Assamese", "as-tdif-1", mutableStateOf(DownloadStatus.CORRUPTED), "asm"),
 )
 
 @Composable
