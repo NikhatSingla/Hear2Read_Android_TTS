@@ -9,6 +9,7 @@ package org.hear2read.h2rng
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -126,6 +127,7 @@ fun SettingSlider(
 
 @Composable
 fun InputScreen(context: Context, navController: NavController) {
+    val LOG_TAG = "H2RNG_" + (object{}.javaClass.enclosingMethod?.name ?: "")
     var text by remember { mutableStateOf("") }
     var selectedVoice: Voice? by remember { mutableStateOf(null) }
     var selectedSpeed by remember { mutableFloatStateOf(50f) }
@@ -165,6 +167,11 @@ fun InputScreen(context: Context, navController: NavController) {
                 if (selectedVoice != null) {
                     CoroutineScope(Dispatchers.IO).launch {
                         Synthesizer.getOrLoadModel(context, selectedVoice!!)
+                        val resourceName = "${selectedVoice!!.iso3}_sample"
+                        Log.d(LOG_TAG, "Resource name: $resourceName")
+                        val resId = context.resources.getIdentifier(resourceName, "string", context.packageName)
+                        val sampleText = if (resId != 0) context.getString(resId) else "Some random sample text."
+                        text = sampleText
                     }
                 }
             }

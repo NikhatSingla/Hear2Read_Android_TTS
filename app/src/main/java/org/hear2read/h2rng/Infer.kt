@@ -30,6 +30,7 @@ object Synthesizer {
         System.loadLibrary("phonemizer")
     }
 
+    private val LOG_TAG = "H2RNG_" + Synthesizer::class.simpleName
     private var _loadJob : Job? = null
     private var _session : OrtSession? = null
     private var _speakJob : Job? = null
@@ -57,10 +58,10 @@ object Synthesizer {
         }
 
         val assetPackLocation = manager!!.getPackLocation(selectedVoice.iso3) ?: return
-        Log.d("AssetPack", assetPackLocation.assetsPath().toString())
+        Log.d(LOG_TAG, "AssetPack: " + assetPackLocation.assetsPath().toString())
         val assetPackPath = assetPackLocation.assetsPath() ?: return
         val modelFile = getFileWithExtension(assetPackPath, "onnx") ?: return
-        Log.d("AssetPack", modelFile.absolutePath)
+        Log.d(LOG_TAG, "AssetPack: " + modelFile.absolutePath)
 
         try {
             _loadJob?.cancel()
@@ -117,7 +118,7 @@ object Synthesizer {
             _speakJob?.cancel()
             println("Previous speaking stopped.")
         } catch (e : Exception) {
-            println("Error closing previous session or coroutine: ${e.message}")
+            Log.w(LOG_TAG, "Error closing previous session or coroutine: ${e.message}")
             e.printStackTrace()
         }
 
@@ -137,7 +138,7 @@ object Synthesizer {
 //            val jsonConfigFile = File(context.filesDir, langToFile[selectedLanguage]!! + ".json")
 
             //            println("Model file is ${modelFile.isFile()}")
-            println("Config file is ${jsonConfigFile.isFile()}")
+            Log.d(LOG_TAG,"Config file is ${jsonConfigFile.isFile()}")
             //            println(isDirectoryPathValid(context.filesDir.absolutePath))
 
             val startEspeak = _timeSource.markNow()
@@ -152,6 +153,7 @@ object Synthesizer {
             println("GetEnv took time: ${(endGetEnv - startGetEnv).toDouble(DurationUnit.MILLISECONDS)}")
 
             println(outputTextToPhonemes)
+            Log.d(LOG_TAG, "outputTextToPhonemes: $outputTextToPhonemes")
 
             val startRep = _timeSource.markNow()
             val phonemeIdsArr = outputTextToPhonemes
@@ -187,6 +189,8 @@ object Synthesizer {
             val scalesArr = floatArrayOf(0.667f, phonemeLenScale, 0.8f)
             val scales = FloatBuffer.wrap(scalesArr)
             val scalesShape = longArrayOf(scalesArr.size.toLong())
+            val speakerID = LongBuffer.wrap(longArrayOf(0))
+            val speakerIDShape = longArrayOf(1)
 
             val ortInputs = mutableMapOf(
                 "input" to OnnxTensor.createTensor(env, phonemeIds, phonemeIdsShape),
@@ -195,8 +199,11 @@ object Synthesizer {
                     phonemeIdsLengths,
                     phonemeIdLengthsShape
                 ),
-                "scales" to OnnxTensor.createTensor(env, scales, scalesShape)
+                "scales" to OnnxTensor.createTensor(env, scales, scalesShape),
             )
+            if (selectedVoice.isMultiSpeaker) {
+                ortInputs["sid"] = OnnxTensor.createTensor(env, speakerID, speakerIDShape)
+            }
             val endInputPrep = _timeSource.markNow()
             println("Input prep took time: ${(endInputPrep - startInputPrep).toDouble(DurationUnit.MILLISECONDS)}")
 
@@ -242,9 +249,9 @@ object Synthesizer {
                     }
 
                     val realTimeMillis = audioCount.toDouble() * 1000.0 / 22500.0
-                    println("Real time: $realTimeMillis ms")
+                    Log.d(LOG_TAG,"Real time: $realTimeMillis ms")
 
-                    println("Inference ratio: ${inferenceTimeMillis / realTimeMillis}")
+                    Log.d(LOG_TAG,"Inference ratio: ${inferenceTimeMillis / realTimeMillis}")
 
                     // TODO: provide playAudio as callback too!
                     if (callback == null) {
@@ -254,7 +261,7 @@ object Synthesizer {
                     }
                 }
             } catch (e: Exception) {
-                println("Exception ${e.message} has occurred.")
+                Log.e(LOG_TAG,"Exception ${e.message} has occurred.")
                 e.printStackTrace()
             }
         }

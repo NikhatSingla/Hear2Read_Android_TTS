@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 
 val voicePackList = listOf(
     "hin",
-    "pan",
+    "kan",
     "eng",
 )
 
@@ -35,16 +35,16 @@ fun populateSizes() {
                     val assetPackLocation = manager!!.getPackLocation(voice.iso3)
                     val assetPackPath = assetPackLocation?.assetsPath()!!
                     val fileName = getFileWithExtension(assetPackPath, "onnx") ?: return@launch
-
-                    val tempParsed = fileName.name.replace("-", ".").split(".")
-                    var synthFreq = 16000
-
-                    if (tempParsed.contains("med")) {
-                        Log.d("PAD_Test", "This is a medium voice ${voice.iso3}")
-                        synthFreq = 22050
-                    }
-
-                    voice.sampleRate = synthFreq
+                        //TODO : do this from json?
+//                    val tempParsed = fileName.name.replace("-", ".").split(".")
+//                    var synthFreq = 16000
+//
+//                    if (tempParsed.contains("med")) {
+//                        Log.d("PAD_Test", "This is a medium voice ${voice.iso3}")
+//                        synthFreq = 22050
+//                    }
+//
+//                    voice.sampleRate = synthFreq
                 } else {
                     voice.status.value = DownloadStatus.NOT_DOWNLOADED
                 }

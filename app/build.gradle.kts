@@ -12,8 +12,8 @@ android {
         applicationId = "org.hear2read.h2rng"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -38,7 +38,8 @@ android {
         compose = true
     }
 
-    assetPacks += listOf(":hin", ":pan", ":eng")
+    assetPacks += listOf(":hin", ":eng", ":kan")
+//    assetPacks += listOf(":hin", ":pan", ":eng")
 }
 
 dependencies {
