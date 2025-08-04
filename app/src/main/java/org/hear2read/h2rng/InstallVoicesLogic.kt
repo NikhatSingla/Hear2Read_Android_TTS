@@ -8,12 +8,28 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-// PLAN
-// 1. Iterate through voicePackList and update voice.status based on it
-//      This will ensure we get the proper list of languages available
-// 2. Register Listeners for every voice
-//      This will ensure that the status of the voice is updated consistently, whenever the status changes
-// 3. Register
+/*
+ * This file contains the logic for managing the voices.
+ *
+ * Important Variables/Classes:
+ * Voice: Data Class representing a voice's properties like name, download status, iso3 code, etc
+ * voicePackList: List of Play Asset Delivery (PAD) voices supported by the app. It must be mandatorily updated if any language is added or removed from the PAD.
+ * voices: List of "Voice" objects displayed in the "Voice Manager" screen.
+ *
+ * Functions:
+ * populateSizes():
+ *  Populates the size of each voice's PlayAssetPack into its Voice object.
+ *  Alongside it is also responsible for updating the initial download status of each voice.
+ *  Also sets the sample rate of each voice by analyzing the file name.
+ *  This function is just called once in the onCreate() of the MainActivity.
+ *
+ * installVoice(voice: Voice):
+ *  Wrapper around the Play Asset Delivery (PAD) manager's requestFetch() function.
+ *
+ * deleteVoice(voice: Voice):
+ *  Wrapper around the Play Asset Delivery (PAD) manager's requestRemovePack() function.
+ *  Also checks if the corresponding PlayAssetPack have been removed correctly, otherwise sets the corresponding Voice.status to CORRUPTED.
+ */
 
 val voicePackList = listOf(
     "hin",
