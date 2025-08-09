@@ -12,9 +12,7 @@ import kotlinx.coroutines.launch
  * This file contains the logic for managing the voices.
  *
  * Important Variables/Classes:
- * Voice: Data Class representing a voice's properties like name, download status, iso3 code, etc
  * voicePackList: List of Play Asset Delivery (PAD) voices supported by the app. It must be mandatorily updated if any language is added or removed from the PAD.
- * voices: List of "Voice" objects displayed in the "Voice Manager" screen.
  *
  * Functions:
  * populateSizes():

@@ -1,3 +1,23 @@
+/*
+ * This file defines ONLY the UI layout for Voice Manager screen.
+ * All the business logic is present in InstallVoicesLogic.kt
+ *
+ * Important Variables/Classes:
+ * Voice: Data Class representing a voice's properties like name, download status, iso3 code, etc
+ * voices: List of "Voice" rows displayed in the "Voice Manager" screen. This list needs to be updated if a new language is added or removed.
+ *
+ * Functions:
+ *
+ * @Composable
+ * VoiceItem(voice: Voice):
+ *  Renders a row per voice item in the "Voice Manager" screen.
+ *
+ * @Composable
+ * InstallVoicesScreen():
+ *  Main function that renders the "Voice Manager" screen.
+ *  Calls VoiceItem to render a row for each voice present in the "voices" list
+ */
+
 package org.hear2read.h2rng
 
 import androidx.compose.foundation.clickable
@@ -86,7 +106,6 @@ fun VoiceItem(voice: Voice) {
         displayText = "Delete"
         displayIcon = Icons.Default.Delete
         onClickAction = { voiceItem ->
-//            checkStatus()
             deleteVoice(voiceItem)
         }
     }
@@ -94,7 +113,6 @@ fun VoiceItem(voice: Voice) {
         displayText = "Download"
         displayIcon = Icons.Default.Download
         onClickAction = { voiceItem ->
-//            checkStatus()
             installVoice(voiceItem)
         }
     }
@@ -108,7 +126,6 @@ fun VoiceItem(voice: Voice) {
         displayIcon = Icons.Default.Refresh
         displayText = "Retry"
         onClickAction = { voiceItem ->
-//            checkStatus()
             deleteVoice(voiceItem)
             installVoice(voiceItem)
         }
@@ -119,34 +136,12 @@ fun VoiceItem(voice: Voice) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-//        Column (
-//            modifier = Modifier
-//                .padding(16.dp),
-//            horizontalAlignment = Alignment.Start,
-//            verticalArrangement = Arrangement.SpaceBetween
-//        ) {
-//            Text(
-//                text = voice.name,
-//                modifier = Modifier.fillMaxWidth(),
-//                fontSize = MaterialTheme.typography.titleMedium.fontSize
-//            )
-//
-//            if (status == DownloadStatus.DOWNLOADING) {
-//                Spacer()
-//                LinearProgressIndicator()
-//            }
-//        }
-
         Column(
             modifier = Modifier
-                .padding(start = 16.dp, end = 8.dp, top = 16.dp, bottom = 16.dp), // Adjusted padding
-//                .fillMaxWidth(), // Make the column take available width in the Row
-            horizontalAlignment = Alignment.Start
-            // Removed Arrangement.SpaceBetween as we'll manually space for the progress bar
+                .padding(start = 16.dp, end = 8.dp, top = 16.dp, bottom = 16.dp),
         ) {
             Text(
                 text = voice.name,
-//                 modifier = Modifier.fillMaxWidth(), // Not needed if column fills width
                 fontSize = MaterialTheme.typography.titleMedium.fontSize,
                 maxLines = 1 // Optional: if voice names can be very long
             )
@@ -157,18 +152,8 @@ fun VoiceItem(voice: Voice) {
                 LinearProgressIndicator(
                      progress = { voice.downloadProgress.value },
                     modifier = Modifier
-                        .fillMaxWidth(0.6f) // Make it take 80% of the column's width
-                        // OR
-                        // .widthIn(max = 200.dp) // Constrain to a max width
-//                        .height(6.dp) // Optional: Make it a bit thicker if desired
+                        .fillMaxWidth(0.6f)
                 )
-                // Optional: Show percentage text
-                // Spacer(modifier = Modifier.height(4.dp))
-                // Text(
-                //    text = "${(currentProgress * 100).toInt()}% Downloading",
-                //    style = MaterialTheme.typography.bodySmall,
-                //    color = MaterialTheme.colorScheme.onSurfaceVariant
-                // )
             }
         }
 
