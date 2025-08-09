@@ -3,6 +3,45 @@
 *
 * Author: Nikhat Singla
 * Date: June 2025
+* Description:
+*
+* Variables:
+* manager: AssetPackManager?
+*   Global variable to store the AssetPackManager instance.
+*
+* Functions:
+* @Composable
+* GlobalTopBar(text: String)
+*   A universal top bar with Hear2Read logo and custom text for the application.
+*   This function is used in multiple Kotlin files in this package, for each screen.
+*
+* @Composable
+* LanguageDropdown(...)
+*   Composable function to display a dropdown menu for selecting a language.
+*   Displays all the languages that are properly downloaded in the "voices" list.
+*
+* @Composable
+* SettingSlider(...)
+*   Composable function to display slider (used for speed and volume).
+*
+* @Composable
+* InputScreen()
+*   Main composable that renders the whole home (TTS) screen.
+*
+* MainActivity.onCreate()
+*   Main function that runs on application launch.
+*   Does the following in the listed order:
+*       - Assigns an instance of AssetPackManager to the global variable "manager"
+*       - Runs populateVoices() (see InstallVoicesLogic.kt)
+*       - Copies the espeak-ng data files using AssetManger into a folder in the files directory
+*       - Defines the navigation routes
+*       - Renders the screen using InputScreen()
+*
+* Classes:
+* sealed class Screen:
+*   Used for navigation. Defines a screen name for each route.
+*   If a new screen needs to be added, define its route here.
+*   It is not mandatory to have this class, but it is a good practice since it avoids hardcoded routes.
 */
 
 package org.hear2read.h2rng
@@ -51,7 +90,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.android.play.core.assetpacks.AssetPackManagerFactory
-import org.hear2read.h2rng.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -277,7 +315,6 @@ class MainActivity : ComponentActivity() {
         manager = AssetPackManagerFactory.getInstance(this)
         populateSizes()
 
-//        copyDataDir(this, "espeak-ng-data")
         Synthesizer.initeSpeak(copyDataDir(this, "espeak-ng-data"))
 
         enableEdgeToEdge()
@@ -295,19 +332,6 @@ class MainActivity : ComponentActivity() {
                     InstallVoicesScreen()
                 }
             }
-
-//            InstallVoicesScreen()
-//            SettingsPreview()
-//            VoiceManagerScreen()
-//            InputScreen(this)
-//            TTSNGDemoTheme {
-//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-//                    Greeting(
-//                        name = "Android",
-//                        modifier = Modifier.padding(innerPadding)
-//                    )
-//                }
-//            }
         }
     }
 }
