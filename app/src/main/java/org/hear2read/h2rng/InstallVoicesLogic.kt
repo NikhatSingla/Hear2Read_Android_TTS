@@ -1,13 +1,3 @@
-package org.hear2read.h2rng
-
-import android.util.Log
-import com.google.android.play.core.ktx.requestFetch
-import com.google.android.play.core.ktx.requestPackStates
-import com.google.android.play.core.ktx.requestRemovePack
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-
 /*
  * This file contains the logic for managing the voices.
  *
@@ -28,6 +18,16 @@ import kotlinx.coroutines.launch
  *  Wrapper around the Play Asset Delivery (PAD) manager's requestRemovePack() function.
  *  Also checks if the corresponding PlayAssetPack have been removed correctly, otherwise sets the corresponding Voice.status to CORRUPTED.
  */
+
+package org.hear2read.h2rng
+
+import android.util.Log
+import com.google.android.play.core.ktx.requestFetch
+import com.google.android.play.core.ktx.requestPackStates
+import com.google.android.play.core.ktx.requestRemovePack
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 val voicePackList = listOf(
     "hin",
