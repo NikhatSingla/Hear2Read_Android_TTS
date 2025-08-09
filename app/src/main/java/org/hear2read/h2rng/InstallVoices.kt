@@ -44,20 +44,29 @@ enum class DownloadStatus {
     CORRUPTED
 }
 
-data class Voice (
+data class Voice(
     val name: String, // e.g. Hindi
-    val id: String, // e.g. hi-tdilv2mono-...
+    val id: String, // e.g. hi-tdilv2mono-... TODO: is this required?
     val status: MutableState<DownloadStatus>,
     val iso3: String,
+    val isMultiSpeaker: Boolean = false, //TODO: get this from json instead of hardcoding?
+    val sampleRate: Int = 16000,
     var size: Long = 0,
-    var sampleRate: Int = 16000,
     val downloadProgress: MutableState<Float> = mutableFloatStateOf(0.0f),
 )
 
+//TODO populate this dynamically?
 val voices = listOf(
-    Voice("Hindi", "hi-tdilv2mono-1", mutableStateOf(DownloadStatus.NOT_DOWNLOADED), "hin"),
-    Voice("Punjabi", "pa-tdif-1", mutableStateOf(DownloadStatus.NOT_DOWNLOADED), "pan"),
-    Voice("English", "en-mono-us", mutableStateOf(DownloadStatus.DOWNLOADED), "eng"),
+    Voice("Hindi", "hi-tdilv2mono-1", mutableStateOf(DownloadStatus.NOT_DOWNLOADED), "hin", sampleRate = 22050),
+//    Voice("Punjabi", "pa-tdif-1", mutableStateOf(DownloadStatus.NOT_DOWNLOADED), "pan"),
+    Voice(
+        "Kannada",
+        "kn-v2-tdilh2radditional-1987val-low",
+        mutableStateOf(DownloadStatus.NOT_DOWNLOADED),
+        "kan",
+        isMultiSpeaker = true
+    ),
+    Voice("English", "en-mono-us", mutableStateOf(DownloadStatus.NOT_DOWNLOADED), "eng",),
 //    Voice("Tamil", "ta-tdif-1", mutableStateOf(DownloadStatus.CORRUPTED), "tam"),
 //    Voice("Marathi", "ma-tdif-1", mutableStateOf(DownloadStatus.DOWNLOADING), "mar"),
 //    Voice("Assamese", "as-tdif-1", mutableStateOf(DownloadStatus.CORRUPTED), "asm"),

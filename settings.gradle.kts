@@ -22,5 +22,5 @@ dependencyResolutionManagement {
 rootProject.name = "TTS NG Demo"
 include(":app")
 include(":hin")
-include(":pan")
+include(":kan")
 include(":eng")

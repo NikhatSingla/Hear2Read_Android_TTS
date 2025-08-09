@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.example.ttsdemo", appContext.packageName)
+        assertEquals("org.hear2read.h2rng", appContext.packageName)
     }
 }

@@ -4,7 +4,7 @@ plugins {
 }
 
 assetPack {
-    packName.set("pan") // Directory name for the asset pack
+    packName.set("kan") // Directory name for the asset pack
     dynamicDelivery {
         deliveryType.set("on-demand")
     }
