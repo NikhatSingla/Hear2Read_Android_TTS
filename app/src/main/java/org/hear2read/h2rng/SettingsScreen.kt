@@ -1,3 +1,19 @@
+/*
+ * This file defines the UI layout for the Settings screen.
+ *
+ * Functions:
+ * @Composable
+ * OptionsText(text: String, onOptionClick: () -> Unit)
+ *  Displays a single option in the Settings screen.
+ *  text: The text to be displayed in the option.
+ *  onOptionClick: Custom action to be performed when the option is clicked.
+ *
+ * @Composable
+ * SettingsScreen(navController: NavController)
+ *  Displays the setting screen
+ *  Calls OptionsText to render each option in the Settings screen.
+ */
+
 package org.hear2read.h2rng
 
 import android.content.Intent
@@ -82,9 +98,3 @@ fun SettingsScreen(navController: NavController) {
         }
     }
 }
-
-//@Preview
-//@Composable
-//fun SettingsPreview() {
-//    SettingsScreen()
-//}
