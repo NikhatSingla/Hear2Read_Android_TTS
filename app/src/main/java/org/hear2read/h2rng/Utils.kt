@@ -3,6 +3,20 @@
 *
 * Author: Nikhat Singla
 * Date: June 2025
+*
+* Description:
+* Functions:
+* fun copyFile(context: Context, filename: String)
+*   Simply copies the file named 'filename' (parameter) from the assets to the internal files directory.
+*
+* fun copyAssets(context: Context, path: String)
+*   This function recursively traverses the directory at 'path' (parameter) in the assets and copies all files to the internal files directory using copyFile.
+*
+* fun copyDataDir(context: Context, dataDir: String): String
+*   Wrapper around copyAssets that also return the absolute path of the newly copied directory.
+*
+* fun getFileWithExtension(directory: String, extension: String) : File?
+*   Returns the first file (File object) in the 'directory' (parameter) with the given 'extension' (parameter).
 */
 
 package org.hear2read.h2rng
@@ -11,46 +25,6 @@ import android.content.Context
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.net.HttpURLConnection
-import java.net.URL
-
-fun downloadFile(context: Context, modelUrl: String) {
-    Thread {
-        try {
-            val url = URL(modelUrl)
-            val connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "GET"
-            connection.connect()
-
-            if (connection.responseCode != HttpURLConnection.HTTP_OK) {
-                println("Server returned HTTP ${connection.responseCode}")
-                return@Thread
-            }
-
-            // Extract filename from URL
-            val fileName = url.path.substringAfterLast('/')
-
-            val file = File(context.filesDir, fileName)
-            val outputStream = FileOutputStream(file)
-
-            val inputStream = connection.inputStream
-            val buffer = ByteArray(4096)
-            var bytesRead: Int
-
-            while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                outputStream.write(buffer, 0, bytesRead)
-            }
-
-            outputStream.close()
-            inputStream.close()
-
-            println("Downloaded file: $fileName")
-        } catch (e: Exception) {
-            println("Download has failed")
-            e.printStackTrace()
-        }
-    }.start()
-}
 
 fun copyFile(context: Context, filename: String) {
     try {
@@ -80,6 +54,7 @@ fun copyAssets(context: Context, path: String) {
     try {
         assets = context.assets.list(path)
         if (assets!!.isEmpty()) {
+            // If assets is empty, that means we have reached a file.
             copyFile(context, path)
         } else {
             val fullPath = "${context.filesDir.absolutePath}/$path"

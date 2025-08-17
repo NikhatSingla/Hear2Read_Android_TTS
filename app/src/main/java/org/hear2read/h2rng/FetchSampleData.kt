@@ -1,3 +1,16 @@
+/*
+ * This file contains logic for fetching sample text for each language.
+ * GetSampleText is the activity that fetches the sample text from 'res/values/strings.xml' file.
+ * This XML file contains sample text for Indic languages under the <string/> tag with attribute "name" in the format "<iso3_language_code>_sample".
+ *
+ * Functions:
+ * getSampleTextData(lang: String) : String
+ *  This is the main helper function that fetches the sample text
+ *
+ * onCreate(savedInstanceState: Bundle?)
+ *  This is the function called when the activity is created. It internally calls getSampleTextData() to fetch the sample text.
+ */
+
 package org.hear2read.h2rng
 
 import android.app.Activity

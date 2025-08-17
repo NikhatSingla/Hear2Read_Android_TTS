@@ -1,7 +1,7 @@
 /*
  * This file handles the logic of checking the available voices in the TTS menu under Android Talkback.
  * CheckVoiceData is the activity that handles this task.
- * If any "Voice" is present in "voices" and it sis downloaded, it will be shown in the menu.
+ * If any "Voice" is present in "voices" and it is downloaded, it will be shown in the menu.
  * Refer to InstallVoices.kt for more details on "Voice" and "voices".
  */
 

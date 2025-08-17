@@ -1,3 +1,13 @@
+/*
+ * This file implements a custom AssetPackStateUpdateListener interface, which helps in monitoring the status of asset packs.
+ *
+ * StatePackUpdateListener is the class that implements the AssetPackStateUpdateListener interface.
+ *
+ * fun onStateUpdate(state: AssetPackState)
+ *  The onStateUpdate method is called when the status of an asset pack changes.
+ *  The "voices" list is traversed to find the corresponding Voice object for the asset pack whose status has changed. The downloadProgress and status values of the Voice object are updated accordingly.
+ */
+
 package org.hear2read.h2rng
 
 import android.util.Log

@@ -3,6 +3,13 @@
 *
 * Author: Nikhat Singla
 * Date: June 2025
+*
+* Description:
+* This file contains functionality related to audio playback.
+*
+* Function:
+* fun playAudio(shortArray: ShortArray, sampleRate: Int = 16000)
+*   Given an array of short integers (shortArray) and a sampleRate (in Hz, default 16000 Hz), this function produces audio output through the speakers.
 */
 
 package org.hear2read.h2rng

@@ -3,6 +3,66 @@
 *
 * Author: Nikhat Singla
 * Date: June 2025
+*
+* Description:
+* This is perhaps the most important file of the application.
+* All the important logic related to text-to-phoneme conversion as well as ORT inference is handled here.
+*
+* Workflow:
+*   - The ONNX model for any language is only loaded when the language is changed from the dropdown menu. This saves a lot of inference time.
+*   - When the user presses "Speak" button, Synthesizer.speak() is called
+*   - When the user changes language from the dropdown, Synthesizer.getOrLoadModel() is called for the newly selected language
+*
+* Object:
+* object Synthesizer
+*   This object encapsulates all the functional logic as well as internal variables related to the TTS.
+*   On first instantiation of this object, it loads the dynamic library "libphonemizer.so" corresponding to the host architecture.
+*   This dynamic library contains the necessary phonemization logic to convert the text to phonemes
+*   The phonemes are then processed by this library internally to convert them to phoneme IDs as specified by the .json file of the requested language
+*
+* Variables (private variables within Synthesizer):
+* private var _loadJob
+*   Stores the Job object of the coroutine that is loading/has loaded the ONNX model for most recently selected language
+*
+* private var _session
+*   Stores the reference to ONNX Runtime (ORT) session that is currently loaded for the most recently selected language.
+*
+* private var _speakJob
+*   Stores the Job object of the coroutine that is performing the actual inference and then producing the sound output.
+*
+* private var _timesource
+*   A monotonic time source, used for benchmarking the performance of various sections of code.
+*
+* Functions (methods of Synthesizer):
+* Important: Do not remove @JvmStatic from any of the external functions.
+*
+* @JvmStatic
+* external fun phonemizeWithSilence
+*   The definition of this function is provided in the dynamic library. It is responsible for the phonemization logic.
+*
+* @JvmStatic
+* external fun initeSpeak
+*   The definition of this function is provided in the dynamic library. It is responsible to initialise eSpeak (used for phonemization internally).
+*   It must be necessarily once called before starting any inference.
+*
+* @JvmStatic
+* external fun termeSpeak
+*   The definition of this function is provided in the dynamic library. It is responsible for terminating eSpeak.
+*
+* @JvmStatic
+* fun getOrLoadModel
+*   This function is responsible for loading the ONNX model for the most recently selected language.
+*   It tries to locate the .onnx model file and then tries to create an ORT session (equivalent to model loading) using the model file.
+*   It also cancels any load/speak job, if any.
+*
+* @JvmStatic
+* fun speak
+*   Primary function that handles text to phoneme conversion, model inference and playback.
+*   Steps:
+*       - Waits for the load job to finish (ensuring that model has properly loaded)
+*       - Calls phonemizeWithSilence to convert the text to phoneme IDs
+*       - Uses the loaded ORT session to perform inference and get an array of audio samples
+*       - Calls playAudio (in PlayAudio.kt) or custom callback to play the audio samples through speakers
 */
 
 package org.hear2read.h2rng

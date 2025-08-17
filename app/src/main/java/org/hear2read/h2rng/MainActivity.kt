@@ -33,7 +33,7 @@
 *   Does the following in the listed order:
 *       - Assigns an instance of AssetPackManager to the global variable "manager"
 *       - Runs populateVoices() (see InstallVoicesLogic.kt)
-*       - Copies the espeak-ng data files using AssetManger into a folder in the files directory
+*       - Copies the espeak-ng data files using AssetManager into a folder in the files directory
 *       - Defines the navigation routes
 *       - Renders the screen using InputScreen()
 *
