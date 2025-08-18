@@ -36,6 +36,7 @@ val voicePackList = listOf(
 )
 
 fun populateSizes() {
+    val LOG_TAG = "H2RNG_" + (object{}.javaClass.enclosingMethod?.name ?: "")
     manager!!.registerListener(StatePackUpdateListener)
 
     CoroutineScope(Dispatchers.IO).launch {
@@ -66,7 +67,7 @@ fun populateSizes() {
                 val assetPackState = assetPackStates.packStates()[voice.iso3]
                 voice.size = assetPackState!!.totalBytesToDownload()
 //                voice.assetPackState = assetPackState
-                Log.i("PAD_Test", "${voice.iso3}: ${assetPackState.totalBytesToDownload()}")
+                Log.i(LOG_TAG, "${voice.iso3}: ${assetPackState.totalBytesToDownload()}")
             }
         }
     }

@@ -11,8 +11,10 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import android.util.Log
 
 class CheckVoiceData : Activity() {
+    private val LOG_TAG = "H2RNG_${CheckVoiceData::class.simpleName}"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -21,6 +23,7 @@ class CheckVoiceData : Activity() {
         for (voice in voices) {
             if (voice.status.value == DownloadStatus.DOWNLOADED) {
                 availableVoices.add(voice.iso3)
+                Log.d(LOG_TAG, "Added voice: ${voice.iso3}")
             }
         }
 

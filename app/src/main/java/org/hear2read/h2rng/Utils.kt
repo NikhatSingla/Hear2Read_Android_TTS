@@ -8,11 +8,15 @@
 package org.hear2read.h2rng
 
 import android.content.Context
+import android.util.Log
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
+
+private val FILENAME = "Utils"
+private val LOG_TAG = "H2RNG_${FILENAME}"
 
 fun downloadFile(context: Context, modelUrl: String) {
     Thread {
@@ -46,7 +50,7 @@ fun downloadFile(context: Context, modelUrl: String) {
 
             println("Downloaded file: $fileName")
         } catch (e: Exception) {
-            println("Download has failed")
+            Log.e(LOG_TAG,"Download has failed: ${e.message}")
             e.printStackTrace()
         }
     }.start()
@@ -60,7 +64,7 @@ fun copyFile(context: Context, filename: String) {
 //        println("newFilename: $newFilename")
 
         val ostream = FileOutputStream(newFilename)
-        // Log.i(TAG, "Copying $filename to $newFilename")
+        Log.d(LOG_TAG, "Copying $filename to $newFilename")
         val buffer = ByteArray(1024)
         var read = 0
         while (read != -1) {
@@ -71,7 +75,7 @@ fun copyFile(context: Context, filename: String) {
         ostream.flush()
         ostream.close()
     } catch (ex: Exception) {
-        println("Failed to copy $filename, $ex")
+        Log.e(LOG_TAG,"Failed to copy file $filename: ${ex.message}")
     }
 }
 
@@ -91,16 +95,16 @@ fun copyAssets(context: Context, path: String) {
             }
         }
     } catch (ex: IOException) {
-        println("Failed to copy $path. $ex")
+        Log.e(LOG_TAG,"Failed to copy asset $path: ${ex.message}")
     }
 }
 
 fun copyDataDir(context: Context, dataDir: String): String {
-    println("data dir is $dataDir")
+    Log.d(LOG_TAG,"data dir is $dataDir")
     copyAssets(context, dataDir)
 
     val newDataDir = File(context.filesDir!!.absolutePath, dataDir)
-    println("newDataDir: ${newDataDir.absolutePath}")
+    Log.d(LOG_TAG,"newDataDir: ${newDataDir.absolutePath}")
     return newDataDir.absolutePath
 }
 

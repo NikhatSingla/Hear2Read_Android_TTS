@@ -19,11 +19,11 @@ import com.google.android.play.core.assetpacks.AssetPackManagerFactory
 import kotlinx.coroutines.runBlocking
 
 class TtsService : TextToSpeechService() {
-    private val TAG = "TtsService"
+    private val LOG_TAG = "H2RNG_" + TtsService::class.simpleName
 //    private val _timesource = TimeSource.Monotonic
 
     override fun onCreate() {
-        Log.i(TAG, "onCreate: Hear2Read TTS Service")
+        Log.i(LOG_TAG, "onCreate: Hear2Read TTS Service")
         super.onCreate()
 
         manager = AssetPackManagerFactory.getInstance(application)
@@ -41,16 +41,18 @@ class TtsService : TextToSpeechService() {
 //        }
 
         // TODO: check properly what documentation meant by onLoadLanguage not ALWAYS called
-        Log.i(TAG, "onLoadCalled: $lang, $country, $variant")
+        Log.i(LOG_TAG, "onLoadCalled: $lang, $country, $variant")
 
         for (voice in voices) {
             val status by voice.status
 
             if (voice.iso3 == lang && status == DownloadStatus.DOWNLOADED) {
-                Log.i(TAG, "Known lang $lang called inside onLoadLanguage")
+                Log.i(LOG_TAG, "Known lang $lang called inside onLoadLanguage")
 
                 // TODO: remove hardcoded hi
-                Synthesizer.getOrLoadModel(application, voice)
+                // Removing loading language here, we will only load when called from within
+                // onSynthesizeText()
+                //return Synthesizer.getOrLoadModel(application, voice)
 
                 return LANG_AVAILABLE
             }
@@ -60,7 +62,7 @@ class TtsService : TextToSpeechService() {
     }
 
     override fun onSynthesizeText(request: SynthesisRequest, callback: SynthesisCallback) {
-        Log.i(TAG, "onSynthesizeText: Hear2Read TTS Service")
+        Log.i(LOG_TAG, "onSynthesizeText: Hear2Read TTS Service")
 
         // TODO: implement parameters such as rate, amplitude from SyntesisRequest
         val text = request.charSequenceText.toString()
@@ -89,7 +91,16 @@ class TtsService : TextToSpeechService() {
             return
         }
 
-        Log.d(TAG, "Synthesis Voice found ${foundVoice.iso3}")
+        Log.d(LOG_TAG, "Synthesis Voice found ${foundVoice.iso3}")
+
+        var loadVoiceReturn: Int
+
+        runBlocking {
+            loadVoiceReturn = Synthesizer.getOrLoadModel(application, foundVoice)
+        }
+
+        if (loadVoiceReturn != LANG_AVAILABLE)
+            return
 
         // TODO: fix sample rate
         callback.start(foundVoice.sampleRate, AudioFormat.ENCODING_PCM_16BIT, 1)
@@ -124,17 +135,17 @@ class TtsService : TextToSpeechService() {
 
     override fun onDestroy() {
         // TODO: provide way to close model in Synthesizer
-        Log.i(TAG, "onDestroy: Hear2Read TTS Service")
+        Log.i(LOG_TAG, "onDestroy: Hear2Read TTS Service")
         super.onDestroy()
     }
 
      override fun onIsLanguageAvailable(lang: String?, country: String?, variant: String?): Int {
-        Log.i(TAG, "onIsLangAvailable: Hear2Read TTS Service: $lang, $country, $variant")
+//        Log.i(LOG_TAG, "onIsLangAvailable: Hear2Read TTS Service: $lang, $country, $variant")
 
         // TODO: provide a mapping and check from it
         for (voice in voices) {
             if (voice.iso3 == lang) {
-                Log.i(TAG, "Known language $lang returned.")
+//                Log.i(LOG_TAG, "Known language $lang returned.")
                 return LANG_AVAILABLE
             }
         }
@@ -144,12 +155,12 @@ class TtsService : TextToSpeechService() {
 
     override fun onGetLanguage(): Array<String> {
         // TODO: remove hardcoded hi
-        Log.i(TAG, "onGetLanguage")
+        Log.i(LOG_TAG, "onGetLanguage")
         return arrayOf("hin", "", "")
     }
 
     override fun onStop() {
-        Log.i(TAG, "onStop: Hear2Read TTS Service")
+        Log.i(LOG_TAG, "onStop: Hear2Read TTS Service")
 //        Synthesizer.termeSpeak()
         // TODO: implement close model feature in Synthesizer
     }

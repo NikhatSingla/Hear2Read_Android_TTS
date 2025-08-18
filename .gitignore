@@ -21,3 +21,4 @@ app/release
 *.apk
 *.apks
 *.aab
+*.logcat

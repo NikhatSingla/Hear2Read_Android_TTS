@@ -204,7 +204,9 @@ fun InputScreen(context: Context, navController: NavController) {
 
                 if (selectedVoice != null) {
                     CoroutineScope(Dispatchers.IO).launch {
-                        Synthesizer.getOrLoadModel(context, selectedVoice!!)
+                        // Testing asynchronous, will remove when we shift to using Android TTS API
+                        // here as well
+                        Synthesizer.getOrLoadModel(context, selectedVoice!!, false)
                         val resourceName = "${selectedVoice!!.iso3}_sample"
                         Log.d(LOG_TAG, "Resource name: $resourceName")
                         val resId = context.resources.getIdentifier(resourceName, "string", context.packageName)

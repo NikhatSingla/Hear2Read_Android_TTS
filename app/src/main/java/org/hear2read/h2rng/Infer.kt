@@ -11,6 +11,8 @@ import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession
 import android.content.Context
+import android.speech.tts.TextToSpeech.LANG_AVAILABLE
+import android.speech.tts.TextToSpeech.LANG_NOT_SUPPORTED
 import android.util.Log
 import com.google.android.play.core.assetpacks.AssetPackManagerFactory
 import kotlinx.coroutines.CoroutineScope
@@ -34,6 +36,7 @@ object Synthesizer {
     private var _loadJob : Job? = null
     private var _session : OrtSession? = null
     private var _speakJob : Job? = null
+    private var _curVoice : Voice? = null
 
     private val _timeSource = TimeSource.Monotonic
 
@@ -49,24 +52,41 @@ object Synthesizer {
 
     // TODO: handle concurrency
     @JvmStatic
-    fun getOrLoadModel(
+    suspend fun getOrLoadModel(
         context: Context,
-        selectedVoice: Voice
-    ) {
+        selectedVoice: Voice,
+        synchronous: Boolean = true
+    ): Int {
+        // Skip if language already loaded
+        // TODO: this may cause a problem if there's a voice update with a different ID
+        if ((_curVoice?.iso3 == selectedVoice.iso3) && (_session != null)) {
+            return LANG_AVAILABLE
+        }
+
         if (manager == null) {
             manager = AssetPackManagerFactory.getInstance(context)
         }
 
-        val assetPackLocation = manager!!.getPackLocation(selectedVoice.iso3) ?: return
+        val assetPackLocation = manager!!.getPackLocation(selectedVoice.iso3) ?:  run {
+            Log.e(LOG_TAG,"getPackLocation returned null")
+            return LANG_NOT_SUPPORTED
+        }
         Log.d(LOG_TAG, "AssetPack: " + assetPackLocation.assetsPath().toString())
-        val assetPackPath = assetPackLocation.assetsPath() ?: return
-        val modelFile = getFileWithExtension(assetPackPath, "onnx") ?: return
+        val assetPackPath = assetPackLocation.assetsPath() ?: run {
+            Log.e(LOG_TAG,"assetsPath returned null")
+            return LANG_NOT_SUPPORTED
+        }
+        val modelFile = getFileWithExtension(assetPackPath, "onnx") ?: run {
+            Log.e(LOG_TAG,"getFileWithExtension returned null")
+            return LANG_NOT_SUPPORTED
+        }
+
         Log.d(LOG_TAG, "AssetPack: " + modelFile.absolutePath)
 
         try {
             _loadJob?.cancel()
         } catch (e: Exception) {
-            println("Error canceling prev job: ${e.message}")
+            Log.w(LOG_TAG,"Error canceling prev job: ${e.message}")
             e.printStackTrace()
         }
 
@@ -76,28 +96,36 @@ object Synthesizer {
                     _session?.close()
                     _speakJob?.cancel()
                 } catch (e: Exception) {
-                    println("Error closing previous session or coroutine: ${e.message}")
+                    Log.w(LOG_TAG, "Error closing previous session or coroutine: ${e.message}")
                     e.printStackTrace()
                 }
 
-                println("Current thread is ${Thread.currentThread().name}")
+                Log.d(LOG_TAG, "Current thread is ${Thread.currentThread().name}")
 
                 val startGetEnv = _timeSource.markNow()
+                // TODO: check if duplicates are being created
                 val env = OrtEnvironment.getEnvironment()!!
                 val endGetEnv = _timeSource.markNow()
-                println("GetEnv took time: ${(endGetEnv - startGetEnv).toDouble(DurationUnit.MILLISECONDS)}")
+                Log.d(LOG_TAG, "GetEnv took time: ${(endGetEnv - startGetEnv).toDouble(DurationUnit.MILLISECONDS)}")
 
                 val startSession = _timeSource.markNow()
                 _session = env.createSession(modelFile.absolutePath, OrtSession.SessionOptions())
                 val endSession = _timeSource.markNow()
-                println("Session took time: ${(endSession - startSession).toDouble(DurationUnit.MILLISECONDS)}")
+                Log.d(LOG_TAG, "Session took time: ${(endSession - startSession).toDouble(DurationUnit.MILLISECONDS)}")
+                _curVoice = selectedVoice
             } catch (e: Exception) {
-                println("Model loading failed:  ${e.message}")
+                // TODO better fallback
+                Log.e(LOG_TAG, "Model loading failed:  ${e.message}")
                 e.printStackTrace()
+                _curVoice = null
             }
         }
 
         _loadJob = loadJob
+        // We usually call this from onSynthesizeText(), which requires it to be blocking
+        if (synchronous)
+            _loadJob!!.join()
+        return LANG_AVAILABLE
     }
 
     @JvmStatic
@@ -112,11 +140,11 @@ object Synthesizer {
         if (_loadJob == null)
             return null
 
-        println("Running synthesizer")
+        Log.d(LOG_TAG, "Running synthesizer")
 
         try {
             _speakJob?.cancel()
-            println("Previous speaking stopped.")
+            Log.d(LOG_TAG, "Previous speaking stopped.")
         } catch (e : Exception) {
             Log.w(LOG_TAG, "Error closing previous session or coroutine: ${e.message}")
             e.printStackTrace()
@@ -137,22 +165,21 @@ object Synthesizer {
             val jsonConfigFile = getFileWithExtension(assetPackPath, "json") ?: return@launch
 //            val jsonConfigFile = File(context.filesDir, langToFile[selectedLanguage]!! + ".json")
 
-            //            println("Model file is ${modelFile.isFile()}")
+            //            Log.d(LOG_TAG, "Model file is ${modelFile.isFile()}")
             Log.d(LOG_TAG,"Config file is ${jsonConfigFile.isFile()}")
-            //            println(isDirectoryPathValid(context.filesDir.absolutePath))
+            //            Log.d(LOG_TAG, isDirectoryPathValid(context.filesDir.absolutePath))
 
             val startEspeak = _timeSource.markNow()
             val outputTextToPhonemes = phonemizeWithSilence(text, jsonConfigFile.absolutePath)
             val endEspeak = _timeSource.markNow()
-            println("Espeak took time: ${(endEspeak - startEspeak).toDouble(DurationUnit.MILLISECONDS)}")
+            Log.d(LOG_TAG, "Espeak took time: ${(endEspeak - startEspeak).toDouble(DurationUnit.MILLISECONDS)}")
 
             // TODO: frame skips observed on app startup. Optimise for multi-threading
             val startGetEnv = _timeSource.markNow()
             val env = OrtEnvironment.getEnvironment()!!
             val endGetEnv = _timeSource.markNow()
-            println("GetEnv took time: ${(endGetEnv - startGetEnv).toDouble(DurationUnit.MILLISECONDS)}")
+            Log.d(LOG_TAG, "GetEnv took time: ${(endGetEnv - startGetEnv).toDouble(DurationUnit.MILLISECONDS)}")
 
-            println(outputTextToPhonemes)
             Log.d(LOG_TAG, "outputTextToPhonemes: $outputTextToPhonemes")
 
             val startRep = _timeSource.markNow()
@@ -166,9 +193,9 @@ object Synthesizer {
                 .map { it.toLong() }
                 .toLongArray()
             val endRep = _timeSource.markNow()
-            println("Replacement took time: ${(endRep - startRep).toDouble(DurationUnit.MILLISECONDS)}")
+            Log.d(LOG_TAG, "Replacement took time: ${(endRep - startRep).toDouble(DurationUnit.MILLISECONDS)}")
 
-            //            println(phonemeIdsArr.toString())
+            //            Log.d(LOG_TAG, phonemeIdsArr.toString())
 
             val startInputPrep = _timeSource.markNow()
             val phonemeIds = LongBuffer.wrap(phonemeIdsArr)
@@ -205,14 +232,14 @@ object Synthesizer {
                 ortInputs["sid"] = OnnxTensor.createTensor(env, speakerID, speakerIDShape)
             }
             val endInputPrep = _timeSource.markNow()
-            println("Input prep took time: ${(endInputPrep - startInputPrep).toDouble(DurationUnit.MILLISECONDS)}")
+            Log.d(LOG_TAG, "Input prep took time: ${(endInputPrep - startInputPrep).toDouble(DurationUnit.MILLISECONDS)}")
 
             try {
                 val start = _timeSource.markNow()
                 _session?.run(ortInputs)?.use { results ->
                     val end = _timeSource.markNow()
                     val inferenceTimeMillis = (end - start).toDouble(DurationUnit.MILLISECONDS)
-                    println("ORT took time: $inferenceTimeMillis ms")
+                    Log.d(LOG_TAG, "ORT took time: $inferenceTimeMillis ms")
 
                     val outputTensor =
                         results.get(0) as OnnxTensor // Since output map will have only one node which is called "output"
