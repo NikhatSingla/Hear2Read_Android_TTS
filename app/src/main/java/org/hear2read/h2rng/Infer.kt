@@ -36,7 +36,7 @@ object Synthesizer {
     private var _loadJob : Job? = null
     private var _session : OrtSession? = null
     private var _speakJob : Job? = null
-    private var _curVoice : Voice? = null
+    private var _curH2RVoice : H2RVoice? = null
 
     private val _timeSource = TimeSource.Monotonic
 
@@ -54,12 +54,12 @@ object Synthesizer {
     @JvmStatic
     suspend fun getOrLoadModel(
         context: Context,
-        selectedVoice: Voice,
+        selectedH2RVoice: H2RVoice,
         synchronous: Boolean = true
     ): Int {
         // Skip if language already loaded
         // TODO: this may cause a problem if there's a voice update with a different ID
-        if ((_curVoice?.iso3 == selectedVoice.iso3) && (_session != null)) {
+        if ((_curH2RVoice?.id == selectedH2RVoice.id) && (_session != null)) {
             return LANG_AVAILABLE
         }
 
@@ -67,7 +67,7 @@ object Synthesizer {
             manager = AssetPackManagerFactory.getInstance(context)
         }
 
-        val assetPackLocation = manager!!.getPackLocation(selectedVoice.iso3) ?:  run {
+        val assetPackLocation = manager!!.getPackLocation(selectedH2RVoice.locale.isO3Language) ?:  run {
             Log.e(LOG_TAG,"getPackLocation returned null")
             return LANG_NOT_SUPPORTED
         }
@@ -112,12 +112,12 @@ object Synthesizer {
                 _session = env.createSession(modelFile.absolutePath, OrtSession.SessionOptions())
                 val endSession = _timeSource.markNow()
                 Log.d(LOG_TAG, "Session took time: ${(endSession - startSession).toDouble(DurationUnit.MILLISECONDS)}")
-                _curVoice = selectedVoice
+                _curH2RVoice = selectedH2RVoice
             } catch (e: Exception) {
                 // TODO better fallback
                 Log.e(LOG_TAG, "Model loading failed:  ${e.message}")
                 e.printStackTrace()
-                _curVoice = null
+                _curH2RVoice = null
             }
         }
 
@@ -131,7 +131,7 @@ object Synthesizer {
     @JvmStatic
     fun speak(
         text: String,
-        selectedVoice: Voice,
+        selectedH2RVoice: H2RVoice,
         rate: Int,
         amplitude: Int,
         context: Context,
@@ -160,13 +160,15 @@ object Synthesizer {
             }
 
             // TODO: check if modelFile exists, else prompt for download
-            val assetPackLocation = manager!!.getPackLocation(selectedVoice.iso3) ?: return@launch
+            val assetPackLocation =
+                manager!!.getPackLocation(selectedH2RVoice.locale.isO3Language) ?: return@launch
             val assetPackPath = assetPackLocation.assetsPath() ?: return@launch
-            val jsonConfigFile = getFileWithExtension(assetPackPath, "json") ?: return@launch
+            val jsonConfigFile =
+                getFileWithExtension(assetPackPath, "json") ?: return@launch
 //            val jsonConfigFile = File(context.filesDir, langToFile[selectedLanguage]!! + ".json")
 
             //            Log.d(LOG_TAG, "Model file is ${modelFile.isFile()}")
-            Log.d(LOG_TAG,"Config file is ${jsonConfigFile.isFile()}")
+            Log.d(LOG_TAG,"Config file is ${jsonConfigFile.isFile}")
             //            Log.d(LOG_TAG, isDirectoryPathValid(context.filesDir.absolutePath))
 
             val startEspeak = _timeSource.markNow()
@@ -228,7 +230,7 @@ object Synthesizer {
                 ),
                 "scales" to OnnxTensor.createTensor(env, scales, scalesShape),
             )
-            if (selectedVoice.isMultiSpeaker) {
+            if (selectedH2RVoice.isMultiSpeaker) {
                 ortInputs["sid"] = OnnxTensor.createTensor(env, speakerID, speakerIDShape)
             }
             val endInputPrep = _timeSource.markNow()
@@ -282,7 +284,7 @@ object Synthesizer {
 
                     // TODO: provide playAudio as callback too!
                     if (callback == null) {
-                        playAudio(shortArray, selectedVoice.sampleRate)
+                        playAudio(shortArray, selectedH2RVoice.sampleRate)
                     } else {
                         callback(shortArray)
                     }

@@ -6,14 +6,14 @@ plugins {
 
 android {
     namespace = "org.hear2read.h2rng"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "org.hear2read.h2rng"
         minSdk = 24
         targetSdk = 35
-        versionCode = 3
-        versionName = "1.1"
+        versionCode = 4
+        versionName = "1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

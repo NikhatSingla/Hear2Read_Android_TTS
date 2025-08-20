@@ -6,20 +6,22 @@ import com.google.android.play.core.assetpacks.AssetPackStateUpdateListener
 import com.google.android.play.core.assetpacks.model.AssetPackStatus
 
 object StatePackUpdateListener : AssetPackStateUpdateListener {
+
+    val LOG_TAG = "H2RNG_" + StatePackUpdateListener::class.simpleName
     override fun onStateUpdate(state: AssetPackState) {
         val name = state.name();
-        for (voice in voices) {
-            if (voice.iso3 == name) {
+        for (voice in h2RVoices) {
+            if (voice.locale.isO3Language == name) {
                 val status = state.status()
 
-                Log.d("PAD_Test", "Voice: ${state.name()}, Status: $status")
+                Log.d(LOG_TAG, "Voice: ${state.name()}, Status: $status")
 
                 if (status == AssetPackStatus.DOWNLOADING
                     || status == AssetPackStatus.PENDING
                     || status == AssetPackStatus.TRANSFERRING
                 ) {
                     voice.downloadProgress.value = (state.transferProgressPercentage() * 1.0f) / 100.0f
-                    Log.d("PAD_Test", "Voice: ${state.name()}, Percentage: ${state.transferProgressPercentage()}")
+                    Log.d(LOG_TAG, "Voice: ${state.name()}, Percentage: ${state.transferProgressPercentage()}")
                     voice.status.value = DownloadStatus.DOWNLOADING
                 } else if (status == AssetPackStatus.COMPLETED) {
                     voice.downloadProgress.value = 1.0f

@@ -20,10 +20,10 @@ class CheckVoiceData : Activity() {
 
         val availableVoices: ArrayList<String> = ArrayList()
 
-        for (voice in voices) {
+        for (voice in h2RVoices) {
             if (voice.status.value == DownloadStatus.DOWNLOADED) {
-                availableVoices.add(voice.iso3)
-                Log.d(LOG_TAG, "Added voice: ${voice.iso3}")
+                availableVoices.add(voice.locale.isO3Language)
+                Log.d(LOG_TAG, "Added voice: ${voice.locale}")
             }
         }
 

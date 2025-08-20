@@ -54,6 +54,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.android.play.core.assetpacks.AssetPackManager
+import java.util.Locale
 
 var manager: AssetPackManager? = null
 
@@ -64,11 +65,12 @@ enum class DownloadStatus {
     CORRUPTED
 }
 
-data class Voice(
-    val name: String, // e.g. Hindi
+data class H2RVoice(
+//    val name: String, // e.g. Hindi
+    val locale: Locale,
     val id: String, // e.g. hi-tdilv2mono-... TODO: is this required?
-    val status: MutableState<DownloadStatus>,
-    val iso3: String,
+    val status: MutableState<DownloadStatus> = mutableStateOf(DownloadStatus.NOT_DOWNLOADED),
+//    val iso3: String,
     val isMultiSpeaker: Boolean = false, //TODO: get this from json instead of hardcoding?
     val sampleRate: Int = 16000,
     var size: Long = 0,
@@ -76,30 +78,38 @@ data class Voice(
 )
 
 //TODO populate this dynamically?
-val voices = listOf(
-    Voice("Hindi", "hi-tdilv2mono-1", mutableStateOf(DownloadStatus.NOT_DOWNLOADED), "hin", sampleRate = 22050),
+val h2RVoices = listOf(
+    H2RVoice(
+        locale = Locale.Builder().setLanguage("hi").build(),
+        id = "hi-tdilv2mono-1",
+//        iso3 = "hin",
+        sampleRate = 22050
+    ),
 //    Voice("Punjabi", "pa-tdif-1", mutableStateOf(DownloadStatus.NOT_DOWNLOADED), "pan"),
-    Voice(
-        "Kannada",
-        "kn-v2-tdilh2radditional-1987val-low",
-        mutableStateOf(DownloadStatus.NOT_DOWNLOADED),
-        "kan",
+    H2RVoice(
+        locale = Locale.Builder().setLanguage("kn").build(),
+        id = "kn-v2-tdilh2radditional-1987val-low",
+//        iso3 = "kan",
         isMultiSpeaker = true
     ),
-    Voice("English", "en-mono-us", mutableStateOf(DownloadStatus.NOT_DOWNLOADED), "eng",),
+    H2RVoice(
+        locale = Locale.Builder().setLanguage("en").build(),
+        id = "en-mono-us",
+//        iso3 = "eng"
+    ),
 //    Voice("Tamil", "ta-tdif-1", mutableStateOf(DownloadStatus.CORRUPTED), "tam"),
 //    Voice("Marathi", "ma-tdif-1", mutableStateOf(DownloadStatus.DOWNLOADING), "mar"),
 //    Voice("Assamese", "as-tdif-1", mutableStateOf(DownloadStatus.CORRUPTED), "asm"),
 )
 
 @Composable
-fun VoiceItem(voice: Voice) {
-    val status by voice.status
+fun VoiceItem(h2RVoice: H2RVoice) {
+    val status by h2RVoice.status
     val interactionSource = remember { MutableInteractionSource() }
 
     val displayText: String
     val displayIcon: ImageVector
-    val onClickAction: (Voice) -> Unit
+    val onClickAction: (H2RVoice) -> Unit
     var enabled = true
 
     if (status == DownloadStatus.DOWNLOADED) {
@@ -141,7 +151,7 @@ fun VoiceItem(voice: Voice) {
                 .padding(start = 16.dp, end = 8.dp, top = 16.dp, bottom = 16.dp),
         ) {
             Text(
-                text = voice.name,
+                text = h2RVoice.locale.displayName,
                 fontSize = MaterialTheme.typography.titleMedium.fontSize,
                 maxLines = 1 // Optional: if voice names can be very long
             )
@@ -150,7 +160,7 @@ fun VoiceItem(voice: Voice) {
                 Spacer(modifier = Modifier.height(8.dp)) // Add vertical space
 
                 LinearProgressIndicator(
-                     progress = { voice.downloadProgress.value },
+                     progress = { h2RVoice.downloadProgress.value },
                     modifier = Modifier
                         .fillMaxWidth(0.6f)
                 )
@@ -161,7 +171,7 @@ fun VoiceItem(voice: Voice) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = String.format("%.1f", (voice.size / 1e6)) + " MB",
+                text = String.format("%.1f", (h2RVoice.size / 1e6)) + " MB",
                 modifier = Modifier.padding(8.dp),
                 fontSize = MaterialTheme.typography.bodyMedium.fontSize
             )
@@ -175,7 +185,7 @@ fun VoiceItem(voice: Voice) {
                         interactionSource = interactionSource,
                         indication = ripple()
                     ) {
-                        onClickAction(voice)
+                        onClickAction(h2RVoice)
                     }
                     .padding(top = 16.dp, start = 0.dp, bottom = 16.dp, end = 16.dp),
                 tint = if (enabled)
@@ -197,7 +207,7 @@ fun InstallVoicesScreen() {
         modifier = Modifier.fillMaxWidth()
     ){ innerPadding ->
         LazyColumn (modifier = Modifier.padding(innerPadding)) {
-            items(voices) { voiceItem ->
+            items(h2RVoices) { voiceItem ->
                 VoiceItem(voiceItem)
             }
         }

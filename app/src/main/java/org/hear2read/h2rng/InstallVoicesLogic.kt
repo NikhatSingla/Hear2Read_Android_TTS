@@ -42,12 +42,12 @@ fun populateSizes() {
     CoroutineScope(Dispatchers.IO).launch {
         val assetPackStates = manager!!.requestPackStates(voicePackList)
 
-        for (voice in voices) {
-            if (voice.iso3 in voicePackList) {
-                if (manager!!.getPackLocation(voice.iso3) != null) {
+        for (voice in h2RVoices) {
+            if (voice.locale.isO3Language in voicePackList) {
+                if (manager!!.getPackLocation(voice.locale.isO3Language) != null) {
                     voice.status.value = DownloadStatus.DOWNLOADED
 
-                    val assetPackLocation = manager!!.getPackLocation(voice.iso3)
+                    val assetPackLocation = manager!!.getPackLocation(voice.locale.isO3Language)
                     val assetPackPath = assetPackLocation?.assetsPath()!!
                     val fileName = getFileWithExtension(assetPackPath, "onnx") ?: return@launch
                         //TODO : do this from json?
@@ -64,28 +64,30 @@ fun populateSizes() {
                     voice.status.value = DownloadStatus.NOT_DOWNLOADED
                 }
 
-                val assetPackState = assetPackStates.packStates()[voice.iso3]
+                val assetPackState = assetPackStates.packStates()[voice.locale.isO3Language]
                 voice.size = assetPackState!!.totalBytesToDownload()
 //                voice.assetPackState = assetPackState
-                Log.i(LOG_TAG, "${voice.iso3}: ${assetPackState.totalBytesToDownload()}")
+                Log.i(LOG_TAG, "${voice.locale.isO3Language}: ${assetPackState.totalBytesToDownload()}")
             }
         }
     }
 }
 
-fun installVoice(voice: Voice) {
+fun installVoice(h2RVoice: H2RVoice) {
     CoroutineScope(Dispatchers.IO).launch {
-        manager!!.requestFetch(listOf(voice.iso3))
+        manager!!.clearListeners()
+        manager!!.registerListener(StatePackUpdateListener)
+        manager!!.requestFetch(listOf(h2RVoice.locale.isO3Language))
     }
 }
 
-fun deleteVoice(voice: Voice) {
+fun deleteVoice(h2RVoice: H2RVoice) {
     CoroutineScope(Dispatchers.IO).launch {
-        manager!!.requestRemovePack(voice.iso3)
-        if (manager!!.getPackLocation(voice.iso3) != null) {
-            voice.status.value = DownloadStatus.CORRUPTED
+        manager!!.requestRemovePack(h2RVoice.locale.isO3Language)
+        if (manager!!.getPackLocation(h2RVoice.locale.isO3Language) != null) {
+            h2RVoice.status.value = DownloadStatus.CORRUPTED
         } else {
-            voice.status.value = DownloadStatus.NOT_DOWNLOADED
+            h2RVoice.status.value = DownloadStatus.NOT_DOWNLOADED
         }
     }
 }
